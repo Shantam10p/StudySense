@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 from datetime import date, timedelta    
-from app.db.mysql import get_connection
+from app.db.database import get_connection
 
 
 from app.schemas.planner import (
