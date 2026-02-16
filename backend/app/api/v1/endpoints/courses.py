@@ -22,3 +22,20 @@ def get_courses():
     conn.close()
 
     return courses
+
+@router.get("/{course_id}", response_model = CourseResponse)
+def get_course(course_id: int):
+    conn = get_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    cursor.execute("Select * FROM courses WHERE id = %s", (course_id,))
+    course = cursor.fetchone()
+
+    cursor.close()
+    conn.close()
+
+    if course is None:
+        raise HTTPException(status_code=404, detail="Course not found")
+ 
+
+    return course
