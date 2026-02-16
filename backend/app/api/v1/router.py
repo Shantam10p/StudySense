@@ -1,9 +1,10 @@
 from fastapi import APIRouter
 
-from app.api.v1.endpoints import chat, health, planner
+from app.api.v1.endpoints import chat, health, planner, courses
 
 api_router = APIRouter()
 
 api_router.include_router(health.router, tags=["health"])
 api_router.include_router(planner.router, prefix="/planner", tags=["planner"])
+api_router.include_router(courses.router, prefix="/courses", tags=["courses"])
 api_router.include_router(chat.router, prefix="/chat", tags=["chat"])
