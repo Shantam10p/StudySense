@@ -1,5 +1,12 @@
+// src/App.tsx
+import CoursesPage from "./pages/CoursesPage";
+
 function App() {
-  return <h1>Hello StudySense.ai</h1>;
+  return (
+    <main style={{ padding: "1rem", fontFamily: "system-ui, sans-serif" }}>
+      <CoursesPage />
+    </main>
+  );
 }
 
 export default App;
