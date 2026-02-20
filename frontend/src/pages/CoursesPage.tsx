@@ -38,7 +38,7 @@ export default function CoursesPage() {
 
   return (
     <div>
-      <h1>Courses</h1>
+      <h1 className="text-3xl font-bold text-blue-800 mb-6 border-b-2 border-blue-300 pb-2 inline-block">Courses</h1>
       <ul>
         {courses.map((course) => (
           <li key={course.id}>
