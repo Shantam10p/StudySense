@@ -3,15 +3,18 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import type { Course } from "../types/course";
-import { fetchCourses } from "../api";
+import { deleteCourse, fetchCourses } from "../api";
 import { TopBar } from "../components/Topbar";
 import { CourseCard } from "../components/CourseCard";
+import { ConfirmModal } from "../components/ConfirmModal";
 
 export default function CoursesPage() {
   const navigate = useNavigate();
   const [courses, setCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<number | null>(null);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   useEffect(() => {
     async function loadCourses() {
@@ -47,12 +50,40 @@ export default function CoursesPage() {
         <h1 className="text-3xl font-bold text-blue-800 mb-6 border-b-2 border-blue-300 pb-2 inline-block">
           Courses
         </h1>
+        {deleteError ? (
+          <p className="mb-4 text-sm text-red-600">{deleteError}</p>
+        ) : null}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {courses.map((course) => (
-            <CourseCard key={course.id} course={course} />
+            <CourseCard
+              key={course.id}
+              course={course}
+              onDelete={() => setDeletingId(course.id)}
+            />
           ))}
         </div>
       </div>
+      {deletingId !== null ? (
+        <ConfirmModal
+          title="Delete course?"
+          message="This will permanently remove this course."
+          confirmLabel="Delete"
+          cancelLabel="Cancel"
+          onCancel={() => setDeletingId(null)}
+          onConfirm={async () => {
+            if (deletingId === null) return;
+            try {
+              setDeleteError(null);
+              await deleteCourse(deletingId);
+              setCourses((prev) => prev.filter((c) => c.id !== deletingId));
+            } catch (err: any) {
+              setDeleteError(err?.message || "Failed to delete course");
+            } finally {
+              setDeletingId(null);
+            }
+          }}
+        />
+      ) : null}
     </div>
   );
 }
