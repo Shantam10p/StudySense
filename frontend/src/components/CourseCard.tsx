@@ -14,7 +14,7 @@ export function CourseCard({ course, onDelete }: CourseCardProps) {
           {course.course_name}
         </h3>
 
-        {onDelete ? (
+        {onDelete ? (  //this is a ternery operator so basically only show the delete button if onDelete is provided by the parent component
           <button
             type="button"
             onClick={onDelete}

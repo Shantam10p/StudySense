@@ -2,24 +2,9 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
+import { generatePlan } from "../api/index";
 import { Button } from "../components/Button";
-
-type StudyTask = {
-  title: string;
-  duration_minutes: number;
-  task_type: string;
-};
-
-type DailyPlan = {
-  day: string;
-  tasks: StudyTask[];
-};
-
-type PlannerGenerateResponse = {
-  course_name: string;
-  exam_date: string;
-  daily_plans: DailyPlan[];
-};
+import type { PlannerGenerateResponse } from "../types/planner";
 
 export default function PlannerPage() {
   const navigate = useNavigate();
@@ -52,20 +37,7 @@ export default function PlannerPage() {
         ...(textbook.trim() ? { textbook: textbook.trim() } : {}),
       };
 
-      const response = await fetch("http://127.0.0.1:8000/planner/generate", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      });
-
-      if (!response.ok) {
-        const text = await response.text();
-        throw new Error(text || `Request failed (status ${response.status})`);
-      }
-
-      const data = (await response.json()) as PlannerGenerateResponse;
+      const data = await generatePlan(payload);
       setResult(data);
     } catch (err: any) {
       setError(err?.message || "Failed to generate plan");

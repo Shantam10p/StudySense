@@ -1,5 +1,9 @@
 // src/api/index.ts
 import type { Course } from "../types/course";
+import type {
+  PlannerGenerateRequest,
+  PlannerGenerateResponse,
+} from "../types/planner";
 
 const API_BASE_URL = "http://127.0.0.1:8000"; // FastAPI dev server
 
@@ -21,4 +25,23 @@ export async function deleteCourse(courseId: number): Promise<void> {
   if (!response.ok) {
     throw new Error(`Failed to delete course (status ${response.status})`);
   }
+}
+
+export async function generatePlan(
+  payload: PlannerGenerateRequest,
+): Promise<PlannerGenerateResponse> {
+  const response = await fetch(`${API_BASE_URL}/planner/generate`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(payload),
+  });
+
+  if (!response.ok) {
+    const text = await response.text();
+    throw new Error(text || `Request failed (status ${response.status})`);
+  }
+
+  return response.json();
 }
