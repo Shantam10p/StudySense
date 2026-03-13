@@ -1,72 +1,33 @@
-from fastapi import APIRouter
-from datetime import date, timedelta    
-from app.db.database import get_connection
-
-
+from fastapi import APIRouter, HTTPException
 from app.schemas.planner import (
+    PlannerCourseResponse,
     PlannerGenerateRequest,
     PlannerGenerateResponse,
-    DailyPlan,
-    StudyTask,
 )
+from app.services.planner_service import PlannerService
 
 router = APIRouter()
+planner_service = PlannerService()
 
 @router.post("/generate", response_model=PlannerGenerateResponse)
 def generate_study_plan(payload: PlannerGenerateRequest):
-    
-    #Generate study plan and store course info in DB
+    try:
+        return planner_service.generate_plan(payload)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
 
-    #SAVE COURSE TO DATABASE
-    conn = get_connection()
-    cursor = conn.cursor()
+@router.post("/generate-ai", response_model=PlannerGenerateResponse)
+def generate_ai_study_plan(payload: PlannerGenerateRequest):
+    try:
+        return planner_service.generate_plan(payload)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
 
-    # TO REMEMBER: %s are placeholders that are safely replaced with values by the MySQL driver
-    insert_query = """
-    INSERT INTO courses (course_name, exam_date, daily_study_hours)
-    VALUES (%s, %s, %s)  
-    """
-
-    cursor.execute(
-        insert_query,
-        (
-            payload.course_name,
-            payload.exam_date,
-            payload.daily_study_hours,
-        )
-    )
-
-    conn.commit()
-    cursor.close()
-    conn.close()
-
-    # GENERATE STUDY PLAN 
-    today = date.today()
-    topics_today = payload.topics[:3]
-
-    total_minutes = int(payload.daily_study_hours * 60)
-    minutes_per_task = total_minutes // len(topics_today)
-
-    tasks = []
-    for topic in topics_today:
-        tasks.append(
-            StudyTask(
-                title=topic,
-                duration_minutes=minutes_per_task,
-                task_type="study",
-            )
-        )
-
-    daily_plan = DailyPlan(
-        day=today,
-        tasks=tasks,
-    )
-
-    #RETURN RESPONSE
-    return PlannerGenerateResponse(
-        course_name=payload.course_name,
-        exam_date=payload.exam_date,
-        daily_plans=[daily_plan],
-    )
-
-   
+@router.get("/course/{course_id}", response_model=PlannerCourseResponse)
+def get_course_plan(course_id: int):
+    try:
+        return planner_service.get_plan_by_course_id(course_id)
+    except ValueError as exc:
+        if str(exc) == "Course not found":
+            raise HTTPException(status_code=404, detail=str(exc)) from exc
+        raise HTTPException(status_code=400, detail=str(exc)) from exc

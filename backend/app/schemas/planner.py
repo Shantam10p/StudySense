@@ -9,18 +9,23 @@ class PlannerGenerateRequest(BaseModel):
     daily_study_hours: float
     textbook: str | None = None
 
-class StudyTask(BaseModel):
+class StudyTaskResponse(BaseModel):
+    id: int
     title: str
     duration_minutes: int
     task_type: str
+    position: int
 
-class DailyPlan(BaseModel):
+class DailyPlanResponse(BaseModel):
+    id: int
     day: date
-    tasks: List[StudyTask]
+    tasks: List[StudyTaskResponse]
 
 class PlannerGenerateResponse(BaseModel):
+    course_id: int
     course_name: str
     exam_date: date
-    daily_plans: List[DailyPlan]
+    daily_plans: List[DailyPlanResponse]
 
-    
+class PlannerCourseResponse(PlannerGenerateResponse):
+    pass
