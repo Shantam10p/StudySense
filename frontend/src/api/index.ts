@@ -5,13 +5,36 @@ import type {
   PlannerGenerateResponse,
 } from "../types/planner";
 
-const API_BASE_URL = "http://127.0.0.1:8000"; // FastAPI dev server
+const API_BASE_URL = "http://127.0.0.1:8000/api/v1";
 
 export async function fetchCourses(): Promise<Course[]> {
   const response = await fetch(`${API_BASE_URL}/courses`);
 
   if (!response.ok) {
     throw new Error(`Failed to fetch courses (status ${response.status})`);
+  }
+
+  return response.json();
+}
+
+export async function fetchCourse(courseId: number): Promise<Course> {
+  const response = await fetch(`${API_BASE_URL}/courses/${courseId}`);
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch course (status ${response.status})`);
+  }
+
+  return response.json();
+}
+
+export async function fetchCoursePlan(
+  courseId: number,
+): Promise<PlannerGenerateResponse> {
+  const response = await fetch(`${API_BASE_URL}/planner/course/${courseId}`);
+
+  if (!response.ok) {
+    const text = await response.text();
+    throw new Error(text || `Failed to fetch course plan (status ${response.status})`);
   }
 
   return response.json();
@@ -30,7 +53,7 @@ export async function deleteCourse(courseId: number): Promise<void> {
 export async function generatePlan(
   payload: PlannerGenerateRequest,
 ): Promise<PlannerGenerateResponse> {
-  const response = await fetch(`${API_BASE_URL}/planner/generate`, {
+  const response = await fetch(`${API_BASE_URL}/planner/generate-ai`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

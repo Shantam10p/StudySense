@@ -59,6 +59,7 @@ export default function CoursesPage() {
               key={course.id}
               course={course}
               onDelete={() => setDeletingId(course.id)}
+              onView={() => navigate(`/planner/${course.id}`)}
             />
           ))}
         </div>

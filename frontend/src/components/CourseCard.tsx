@@ -4,9 +4,10 @@ import type { Course } from "../types/course";
 type CourseCardProps = {
   course: Course;
   onDelete?: () => void;
+  onView?: () => void;
 };
 
-export function CourseCard({ course, onDelete }: CourseCardProps) {
+export function CourseCard({ course, onDelete, onView }: CourseCardProps) {
   return (
     <div className="bg-white border border-slate-200 rounded-lg shadow-sm p-5 hover:shadow-md transition-shadow">
       <div className="flex items-start justify-between gap-2">
@@ -49,7 +50,7 @@ export function CourseCard({ course, onDelete }: CourseCardProps) {
       </div>
 
       <div className="mt-4">
-        <button className="text-sm font-medium text-blue-600 hover:text-blue-700">
+        <button type="button" onClick={onView} className="text-sm font-medium text-blue-600 hover:text-blue-700">
           View
         </button>
       </div>

@@ -1,10 +1,13 @@
 export type PlannerStudyTask = {
+  id: number;
   title: string;
   duration_minutes: number;
   task_type: string;
+  position: number;
 };
 
 export type PlannerDailyPlan = {
+  id: number;
   day: string;
   tasks: PlannerStudyTask[];
 };
@@ -18,6 +21,7 @@ export type PlannerGenerateRequest = {
 };
 
 export type PlannerGenerateResponse = {
+  course_id: number;
   course_name: string;
   exam_date: string;
   daily_plans: PlannerDailyPlan[];

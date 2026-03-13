@@ -9,6 +9,7 @@ function App() {
     <Routes>
       <Route path="/" element={<CoursesPage />} />
       <Route path="/planner" element={<PlannerPage />} />
+      <Route path="/planner/:courseId" element={<PlannerPage />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );

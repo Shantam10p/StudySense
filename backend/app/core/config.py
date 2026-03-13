@@ -1,15 +1,16 @@
 from functools import lru_cache
+import os
 
-from pydantic_settings import BaseSettings, SettingsConfigDict
+from dotenv import load_dotenv
+
+load_dotenv()
 
 
-class Settings(BaseSettings):
-    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
-
-    PROJECT_NAME: str = "StudySense"
-    API_V1_STR: str = "/api/v1"
-
-    DATABASE_URL: str = "sqlite:///./app.db"
+class Settings:
+    def __init__(self) -> None:
+        self.PROJECT_NAME = os.getenv("PROJECT_NAME", "StudySense")
+        self.API_V1_STR = os.getenv("API_V1_STR", "/api/v1")
+        self.DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./app.db")
 
 
 @lru_cache
