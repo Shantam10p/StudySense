@@ -11,6 +11,8 @@ class Settings:
         self.PROJECT_NAME = os.getenv("PROJECT_NAME", "StudySense")
         self.API_V1_STR = os.getenv("API_V1_STR", "/api/v1")
         self.DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./app.db")
+        self.SECRET_KEY = os.getenv("SECRET_KEY", "study-sense-dev-secret")
+        self.ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "60"))
 
 
 @lru_cache
