@@ -8,6 +8,14 @@ import type {
 
 const API_BASE_URL = "http://127.0.0.1:8000/api/v1";
 
+function buildAuthHeaders(contentType = false): HeadersInit {
+  const token = localStorage.getItem("auth_token");
+  return {
+    ...(contentType ? { "Content-Type": "application/json" } : {}),
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+  };
+}
+
 export async function signupUser(payload: SignupRequest): Promise<AuthResponse> {
   const response = await fetch(`${API_BASE_URL}/auth/signup`, {
     method: "POST",
@@ -43,7 +51,9 @@ export async function loginUser(payload: LoginRequest): Promise<AuthResponse> {
 }
 
 export async function fetchCourses(): Promise<Course[]> {
-  const response = await fetch(`${API_BASE_URL}/courses`);
+  const response = await fetch(`${API_BASE_URL}/courses`, {
+    headers: buildAuthHeaders(),
+  });
 
   if (!response.ok) {
     throw new Error(`Failed to fetch courses (status ${response.status})`);
@@ -53,7 +63,9 @@ export async function fetchCourses(): Promise<Course[]> {
 }
 
 export async function fetchCourse(courseId: number): Promise<Course> {
-  const response = await fetch(`${API_BASE_URL}/courses/${courseId}`);
+  const response = await fetch(`${API_BASE_URL}/courses/${courseId}`, {
+    headers: buildAuthHeaders(),
+  });
 
   if (!response.ok) {
     throw new Error(`Failed to fetch course (status ${response.status})`);
@@ -65,7 +77,9 @@ export async function fetchCourse(courseId: number): Promise<Course> {
 export async function fetchCoursePlan(
   courseId: number,
 ): Promise<PlannerGenerateResponse> {
-  const response = await fetch(`${API_BASE_URL}/planner/course/${courseId}`);
+  const response = await fetch(`${API_BASE_URL}/planner/course/${courseId}`, {
+    headers: buildAuthHeaders(),
+  });
 
   if (!response.ok) {
     const text = await response.text();
@@ -78,6 +92,7 @@ export async function fetchCoursePlan(
 export async function deleteCourse(courseId: number): Promise<void> {
   const response = await fetch(`${API_BASE_URL}/courses/${courseId}`, {
     method: "DELETE",
+    headers: buildAuthHeaders(),
   });
 
   if (!response.ok) {
@@ -90,9 +105,7 @@ export async function generatePlan(
 ): Promise<PlannerGenerateResponse> {
   const response = await fetch(`${API_BASE_URL}/planner/generate-ai`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
+    headers: buildAuthHeaders(true),
     body: JSON.stringify(payload),
   });
 

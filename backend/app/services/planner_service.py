@@ -16,7 +16,7 @@ class PlannerService:
     def __init__(self) -> None:
         return
 
-    def generate_plan(self, payload: PlannerGenerateRequest) -> PlannerGenerateResponse:
+    def generate_plan(self, payload: PlannerGenerateRequest, user_id: int) -> PlannerGenerateResponse:
         normalized_topics = self._normalize_topics(payload.topics)
         if not normalized_topics:
             raise ValueError("At least one topic is required")
@@ -31,12 +31,12 @@ class PlannerService:
         input_hash = self._build_input_hash(payload, normalized_topics)
         conn = get_connection()
         try:
-            existing_course_id = self._find_existing_course_id(conn, input_hash)
+            existing_course_id = self._find_existing_course_id(conn, input_hash, user_id)
             if existing_course_id is not None and self._course_has_plan(conn, existing_course_id):
-                return self.get_plan_by_course_id(existing_course_id)
+                return self.get_plan_by_course_id(existing_course_id, user_id)
 
             if existing_course_id is None:
-                course_id = self._create_course(conn, payload, input_hash)
+                course_id = self._create_course(conn, payload, input_hash, user_id)
             else:
                 course_id = existing_course_id
 
@@ -48,14 +48,14 @@ class PlannerService:
             )
 
             self._replace_course_plan(conn, course_id, generated_days)
-            return self.get_plan_by_course_id(course_id)
+            return self.get_plan_by_course_id(course_id, user_id)
         finally:
             conn.close()
 
-    def get_plan_by_course_id(self, course_id: int) -> PlannerCourseResponse:
+    def get_plan_by_course_id(self, course_id: int, user_id: int) -> PlannerCourseResponse:
         conn = get_connection()
         try:
-            course = self._fetch_course(conn, course_id)
+            course = self._fetch_course(conn, course_id, user_id)
             if course is None:
                 raise ValueError("Course not found")
 
@@ -83,18 +83,18 @@ class PlannerService:
         encoded_payload = json.dumps(normalized_payload, sort_keys=True).encode("utf-8")
         return hashlib.sha256(encoded_payload).hexdigest()
 
-    def _find_existing_course_id(self, conn, input_hash: str) -> int | None:
+    def _find_existing_course_id(self, conn, input_hash: str, user_id: int) -> int | None:
         cursor = conn.cursor(dictionary=True)
         try:
             cursor.execute(
                 """
                 SELECT id
                 FROM courses
-                WHERE input_hash = %s
+                WHERE input_hash = %s AND user_id = %s
                 ORDER BY id DESC
                 LIMIT 1
                 """,
-                (input_hash,),
+                (input_hash, user_id),
             )
             row = cursor.fetchone()
             return row["id"] if row else None
@@ -112,19 +112,20 @@ class PlannerService:
         finally:
             cursor.close()
 
-    def _create_course(self, conn, payload: PlannerGenerateRequest, input_hash: str) -> int:
+    def _create_course(self, conn, payload: PlannerGenerateRequest, input_hash: str, user_id: int) -> int:
         cursor = conn.cursor()
         try:
             cursor.execute(
                 """
-                INSERT INTO courses (course_name, exam_date, daily_study_hours, input_hash)
-                VALUES (%s, %s, %s, %s)
+                INSERT INTO courses (course_name, exam_date, daily_study_hours, input_hash, user_id)
+                VALUES (%s, %s, %s, %s, %s)
                 """,
                 (
                     payload.course_name.strip(),
                     payload.exam_date,
                     payload.daily_study_hours,
                     input_hash,
+                    user_id,
                 ),
             )
             conn.commit()
@@ -232,12 +233,12 @@ class PlannerService:
             day_cursor.close()
             task_cursor.close()
 
-    def _fetch_course(self, conn, course_id: int) -> dict | None:
+    def _fetch_course(self, conn, course_id: int, user_id: int) -> dict | None:
         cursor = conn.cursor(dictionary=True)
         try:
             cursor.execute(
-                "SELECT id, course_name, exam_date FROM courses WHERE id = %s",
-                (course_id,),
+                "SELECT id, course_name, exam_date FROM courses WHERE id = %s AND user_id = %s",
+                (course_id, user_id),
             )
             return cursor.fetchone()
         finally:

@@ -38,12 +38,12 @@ def create_access_token(user_id: int, email: str) -> str:
     return f"{payload_encoded}.{signature}"
 
 
-def verify_token(token: str) -> bool:
+def decode_token(token: str) -> dict | None:
     settings = get_settings()
     try:
         payload_encoded, provided_signature = token.split(".", 1)
     except ValueError:
-        return False
+        return None
 
     expected_signature = hmac.new(
         settings.SECRET_KEY.encode("utf-8"),
@@ -52,16 +52,25 @@ def verify_token(token: str) -> bool:
     ).hexdigest()
 
     if not hmac.compare_digest(provided_signature, expected_signature):
-        return False
+        return None
 
     try:
         payload_json = urlsafe_b64decode(payload_encoded.encode("utf-8"))
         payload = json.loads(payload_json.decode("utf-8"))
     except (ValueError, json.JSONDecodeError):
-        return False
+        return None
 
     exp = payload.get("exp")
-    if not isinstance(exp, int):
-        return False
+    sub = payload.get("sub")
+    email = payload.get("email")
+    if not isinstance(exp, int) or not isinstance(sub, str) or not isinstance(email, str):
+        return None
 
-    return exp > int(datetime.now(UTC).timestamp())
+    if exp <= int(datetime.now(UTC).timestamp()):
+        return None
+
+    return payload
+
+
+def verify_token(token: str) -> bool:
+    return decode_token(token) is not None

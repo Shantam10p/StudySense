@@ -6,38 +6,41 @@ class CourseService:
     def __init__(self) -> None:
         return
 
-    def get_courses(self) -> list[dict]:
+    def get_courses(self, user_id: int) -> list[dict]:
         conn = get_connection()
         cursor = conn.cursor(dictionary=True)
         try:
-            cursor.execute("SELECT * FROM courses ORDER BY created_at DESC, id DESC")
+            cursor.execute(
+                "SELECT * FROM courses WHERE user_id = %s ORDER BY created_at DESC, id DESC",
+                (user_id,),
+            )
             return cursor.fetchall()
         finally:
             cursor.close()
             conn.close()
 
-    def get_course(self, course_id: int) -> dict | None:
+    def get_course(self, course_id: int, user_id: int) -> dict | None:
         conn = get_connection()
         cursor = conn.cursor(dictionary=True)
         try:
-            cursor.execute("SELECT * FROM courses WHERE id = %s", (course_id,))
+            cursor.execute("SELECT * FROM courses WHERE id = %s AND user_id = %s", (course_id, user_id))
             return cursor.fetchone()
         finally:
             cursor.close()
             conn.close()
 
-    def delete_course(self, course_id: int) -> bool:
+    def delete_course(self, course_id: int, user_id: int) -> bool:
         conn = get_connection()
         cursor = conn.cursor()
         try:
-            cursor.execute("DELETE FROM courses WHERE id = %s", (course_id,))
+            cursor.execute("DELETE FROM courses WHERE id = %s AND user_id = %s", (course_id, user_id))
             conn.commit()
             return cursor.rowcount > 0
         finally:
             cursor.close()
             conn.close()
 
-    def update_course(self, course_id: int, payload: CoursePutRequest) -> dict | None:
+    def update_course(self, course_id: int, payload: CoursePutRequest, user_id: int) -> dict | None:
         conn = get_connection()
         cursor = conn.cursor()
         try:
@@ -45,13 +48,14 @@ class CourseService:
                 """
                 UPDATE courses
                 SET course_name = %s, exam_date = %s, daily_study_hours = %s
-                WHERE id = %s
+                WHERE id = %s AND user_id = %s
                 """,
                 (
                     payload.course_name,
                     payload.exam_date,
                     payload.daily_study_hours,
                     course_id,
+                    user_id,
                 ),
             )
             conn.commit()
@@ -61,4 +65,4 @@ class CourseService:
             cursor.close()
             conn.close()
 
-        return self.get_course(course_id)
+        return self.get_course(course_id, user_id)
