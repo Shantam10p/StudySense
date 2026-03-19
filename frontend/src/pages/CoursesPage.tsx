@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import type { Course } from "../types/course";
+
 import { deleteCourse, fetchCourses } from "../api";
 import { TopBar } from "../components/Topbar";
 import { CourseCard } from "../components/CourseCard";
@@ -16,10 +17,17 @@ export default function CoursesPage() {
   const [deletingId, setDeletingId] = useState<number | null>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
 
+  function handleLogout() {
+    localStorage.removeItem("auth_token");
+    localStorage.removeItem("auth_user");
+    navigate("/");
+  }
+
   useEffect(() => {
     async function loadCourses() {
       try {
         const data = await fetchCourses();
+
         setCourses(data);
       } catch (err: any) {
         setError(err?.message || "Failed to load courses");
@@ -33,11 +41,12 @@ export default function CoursesPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#F8FAFC] via-[#F1F5F9] to-[#E0E7FF]">
-      <TopBar onNewPlan={() => navigate("/planner/new")} />
+      <TopBar onNewPlan={() => navigate("/planner/new")} onLogout={handleLogout} />
       <div className="p-6 max-w-4xl mx-auto">
         <h1 className="text-3xl font-bold text-blue-800 mb-6 border-b-2 border-blue-300 pb-2 inline-block">
          Your  Courses
         </h1>
+
         {deleteError ? (
           <p className="mb-4 text-sm text-red-600">{deleteError}</p>
         ) : null}
