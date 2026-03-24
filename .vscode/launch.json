@@ -1,0 +1,17 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Python Debugger: FastAPI",
+      "type": "debugpy",
+      "request": "launch",
+      "python": "C:/Users/rshan/anaconda3/envs/study_sense/python.exe",
+      "module": "uvicorn",
+      "cwd": "${workspaceFolder}/backend",
+      "args": [
+        "main:app"
+      ],
+      "jinja": true
+    }
+  ]
+}
