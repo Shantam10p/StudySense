@@ -64,8 +64,13 @@ class PlannerAgent:
 
         prompt = (
             "You are a study planning assistant. "
+            "You must return raw valid JSON only. "
+            "Do not wrap the JSON in Markdown code fences. "
+            "Do not include any explanation or extra text. "
             "Return only valid JSON with this shape: "
-            '{"topics":[{"name":"string","priority":"high|medium|low","difficulty":"easy|medium|hard"}]}. '
+            '{"topics":[{"name":"string","priority":"high|medium|low","difficulty":"easy|medium|hard","total_minutes":120,"session_count":2,"review_sessions":1,"learning_order":1}]}. '
+            "Choose larger total_minutes and more sessions for harder or higher-priority topics. "
+            "Set learning_order so foundational topics come before dependent topics. "
             f"Course: {payload.course_name}. "
             f"Exam date: {payload.exam_date.isoformat()}. "
             f"Daily study hours: {payload.daily_study_hours}. "
@@ -75,6 +80,7 @@ class PlannerAgent:
         try:
             response = self.llm.invoke(prompt)
             content = response.content if isinstance(response.content, str) else ""
+            print("Planner agent raw LLM response:", content)
             parsed = json.loads(content)
             topics = parsed.get("topics")
             analysis = {"topics": topics} if isinstance(topics, list) else self._build_fallback_analysis(normalized_topics)
@@ -93,7 +99,11 @@ class PlannerAgent:
                     "name": topic,
                     "priority": "medium",
                     "difficulty": "medium",
+                    "total_minutes": 120,
+                    "session_count": 2,
+                    "review_sessions": 1,
+                    "learning_order": index,
                 }
-                for topic in topics
+                for index, topic in enumerate(topics, start=1)
             ]
         }
