@@ -13,6 +13,8 @@ class Settings:
         self.DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./app.db")
         self.SECRET_KEY = os.getenv("SECRET_KEY", "study-sense-dev-secret")
         self.ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "60"))
+        self.OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
+        self.PLANNER_AGENT_MODEL = os.getenv("PLANNER_AGENT_MODEL", "gpt-4o-mini")
 
 
 @lru_cache

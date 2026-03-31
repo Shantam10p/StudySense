@@ -2,6 +2,7 @@ import hashlib
 import json
 from datetime import date, timedelta
 
+from app.agents.planner_agent import PlannerAgent
 from app.db.database import get_connection
 from app.schemas.planner import (
     DailyPlanResponse,
@@ -14,7 +15,7 @@ from app.schemas.planner import (
 
 class PlannerService:
     def __init__(self) -> None:
-        return
+        self.planner_agent = PlannerAgent()
 
     def generate_plan(self, payload: PlannerGenerateRequest, user_id: int) -> PlannerGenerateResponse:
         normalized_topics = self._normalize_topics(payload.topics)
@@ -40,8 +41,11 @@ class PlannerService:
             else:
                 course_id = existing_course_id
 
+            topic_analysis = self.planner_agent.analyze(payload)
+            scheduled_sessions = self._build_scheduled_sessions(topic_analysis, normalized_topics)
+
             generated_days = self._build_deterministic_schedule(
-                normalized_topics=normalized_topics,
+                sessions=scheduled_sessions,
                 exam_date=payload.exam_date,
                 daily_study_hours=payload.daily_study_hours,
                 textbook=payload.textbook,
@@ -82,6 +86,104 @@ class PlannerService:
         }
         encoded_payload = json.dumps(normalized_payload, sort_keys=True).encode("utf-8")
         return hashlib.sha256(encoded_payload).hexdigest()
+
+    def _build_scheduled_sessions(self, topic_analysis: dict, fallback_topics: list[str]) -> list[dict]:
+        analyzed_topics = topic_analysis.get("topics") if isinstance(topic_analysis, dict) else None
+        if not isinstance(analyzed_topics, list):
+            return self._build_fallback_sessions(fallback_topics)
+
+        valid_topics: list[dict] = []
+        for topic in analyzed_topics:
+            if not isinstance(topic, dict):
+                continue
+
+            name = str(topic.get("name", "")).strip()
+            if not name:
+                continue
+
+            valid_topics.append(topic)
+
+        if not valid_topics:
+            return self._build_fallback_sessions(fallback_topics)
+
+        sorted_topics = sorted(
+            valid_topics,
+            key=lambda topic: int(topic.get("learning_order", 9999)),
+        )
+
+        topic_sessions = [self._build_topic_sessions(topic) for topic in sorted_topics]
+        study_queues = [
+            [session for session in sessions if session.get("task_type") == "study"]
+            for sessions in topic_sessions
+        ]
+        review_queues = [
+            [session for session in sessions if session.get("task_type") == "review"]
+            for sessions in topic_sessions
+        ]
+
+        sessions: list[dict] = []
+
+        while any(study_queues):
+            for queue in study_queues:
+                if queue:
+                    sessions.append(queue.pop(0))
+
+        while any(review_queues):
+            for queue in review_queues:
+                if queue:
+                    sessions.append(queue.pop(0))
+
+        return sessions or self._build_fallback_sessions(fallback_topics)
+
+    def _build_topic_sessions(self, topic: dict) -> list[dict]:
+        name = str(topic.get("name", "")).strip()
+        session_count = int(topic.get("session_count", 2))
+        review_sessions = int(topic.get("review_sessions", 1))
+        study_session_minutes = int(topic.get("study_session_minutes", 60))
+        review_session_minutes = int(topic.get("review_session_minutes", 30))
+
+        sessions = [
+            {
+                "topic": name,
+                "task_type": "study",
+                "duration_minutes": study_session_minutes,
+            }
+            for _ in range(session_count)
+        ]
+
+        sessions.extend(
+            {
+                "topic": name,
+                "task_type": "review",
+                "duration_minutes": review_session_minutes,
+            }
+            for _ in range(review_sessions)
+        )
+        return sessions
+
+    def _build_fallback_sessions(self, topics: list[str]) -> list[dict]:
+        sessions: list[dict] = []
+        for topic in topics:
+            sessions.extend(
+                [
+                    {
+                        "topic": topic,
+                        "task_type": "study",
+                        "duration_minutes": 60,
+                    },
+                    {
+                        "topic": topic,
+                        "task_type": "study",
+                        "duration_minutes": 60,
+                    },
+                    {
+                        "topic": topic,
+                        "task_type": "review",
+                        "duration_minutes": 30,
+                    },
+                ]
+            )
+        return sessions
 
     def _find_existing_course_id(self, conn, input_hash: str, user_id: int) -> int | None:
         cursor = conn.cursor(dictionary=True)
@@ -135,7 +237,7 @@ class PlannerService:
 
     def _build_deterministic_schedule(
         self,
-        normalized_topics: list[str],
+        sessions: list[dict],
         exam_date: date,
         daily_study_hours: float,
         textbook: str | None,
@@ -145,27 +247,25 @@ class PlannerService:
         plan_dates = [today + timedelta(days=index) for index in range(available_day_count)]
 
         total_minutes = max(30, int(daily_study_hours * 60))
-        max_tasks_per_day = max(1, total_minutes // 30)
-
-        sessions = []
-        for topic in normalized_topics:
-            sessions.append({"topic": topic, "task_type": "study"})
-            if len(plan_dates) > 1:
-                sessions.append({"topic": topic, "task_type": "review"})
 
         day_sessions: list[list[dict]] = [[] for _ in plan_dates]
+        day_minutes_used = [0 for _ in plan_dates]
         day_index = 0
         for session in sessions:
-            while day_index < len(day_sessions) - 1 and len(day_sessions[day_index]) >= max_tasks_per_day:
+            session_minutes = int(session.get("duration_minutes", 30))
+            while (
+                day_index < len(day_sessions) - 1
+                and day_minutes_used[day_index] + session_minutes > total_minutes
+            ):
                 day_index += 1
             day_sessions[day_index].append(session)
+            day_minutes_used[day_index] += session_minutes
 
         generated_days = []
         for current_date, sessions_for_day in zip(plan_dates, day_sessions):
             if not sessions_for_day:
                 continue
 
-            minutes_per_task = max(30, total_minutes // len(sessions_for_day))
             tasks = []
             for position, session in enumerate(sessions_for_day, start=1):
                 tasks.append(
@@ -175,7 +275,7 @@ class PlannerService:
                             task_type=session["task_type"],
                             textbook=textbook,
                         ),
-                        "duration_minutes": minutes_per_task,
+                        "duration_minutes": int(session.get("duration_minutes", 30)),
                         "task_type": session["task_type"],
                         "position": position,
                     }
