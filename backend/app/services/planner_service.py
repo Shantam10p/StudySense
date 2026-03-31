@@ -1,7 +1,6 @@
 import hashlib
 import json
 from datetime import date, timedelta
-from math import ceil
 
 from app.agents.planner_agent import PlannerAgent
 from app.db.database import get_connection
@@ -29,7 +28,7 @@ class PlannerService:
         today = date.today()
         if payload.exam_date <= today:
             raise ValueError("Exam date must be in the future")
-  
+
         input_hash = self._build_input_hash(payload, normalized_topics)
         conn = get_connection()
         try:
@@ -66,8 +65,7 @@ class PlannerService:
 
             daily_plans = self._fetch_daily_plan_rows(conn, course_id)
             return PlannerCourseResponse(
-                course_id
-                =course["id"],
+                course_id=course["id"],
                 course_name=course["course_name"],
                 exam_date=course["exam_date"],
                 daily_plans=daily_plans,
@@ -94,7 +92,7 @@ class PlannerService:
         if not isinstance(analyzed_topics, list):
             return self._build_fallback_sessions(fallback_topics)
 
-        sessions: list[dict] = []
+        valid_topics: list[dict] = []
         for topic in analyzed_topics:
             if not isinstance(topic, dict):
                 continue
@@ -103,19 +101,28 @@ class PlannerService:
             if not name:
                 continue
 
+            valid_topics.append(topic)
+
+        if not valid_topics:
+            return self._build_fallback_sessions(fallback_topics)
+
+        sorted_topics = sorted(
+            valid_topics,
+            key=lambda topic: int(topic.get("learning_order", 9999)),
+        )
+
+        sessions: list[dict] = []
+        for topic in sorted_topics:
             sessions.extend(self._build_topic_sessions(topic))
 
         return sessions or self._build_fallback_sessions(fallback_topics)
 
     def _build_topic_sessions(self, topic: dict) -> list[dict]:
         name = str(topic.get("name", "")).strip()
-        total_minutes = max(30, int(topic.get("total_minutes", 120)))
-        session_count = max(1, int(topic.get("session_count", 2)))
-        review_sessions = max(0, int(topic.get("review_sessions", 1)))
-        preferred_session_minutes = max(30, int(topic.get("preferred_session_minutes", 60)))
-
-        study_session_count = max(session_count, ceil(total_minutes / preferred_session_minutes))
-        study_session_minutes = max(30, total_minutes // study_session_count)
+        session_count = int(topic.get("session_count", 2))
+        review_sessions = int(topic.get("review_sessions", 1))
+        study_session_minutes = int(topic.get("study_session_minutes", 60))
+        review_session_minutes = int(topic.get("review_session_minutes", 30))
 
         sessions = [
             {
@@ -123,15 +130,14 @@ class PlannerService:
                 "task_type": "study",
                 "duration_minutes": study_session_minutes,
             }
-            for _ in range(study_session_count)
+            for _ in range(session_count)
         ]
 
-        review_duration = max(30, preferred_session_minutes // 2)
         sessions.extend(
             {
                 "topic": name,
                 "task_type": "review",
-                "duration_minutes": review_duration,
+                "duration_minutes": review_session_minutes,
             }
             for _ in range(review_sessions)
         )

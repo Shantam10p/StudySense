@@ -68,8 +68,9 @@ class PlannerAgent:
             "Do not wrap the JSON in Markdown code fences. "
             "Do not include any explanation or extra text. "
             "Return only valid JSON with this shape: "
-            '{"topics":[{"name":"string","priority":"high|medium|low","difficulty":"easy|medium|hard","total_minutes":120,"session_count":2,"review_sessions":1,"learning_order":1}]}. '
+            '{"topics":[{"name":"string","priority":"high|medium|low","difficulty":"easy|medium|hard","total_minutes":120,"session_count":2,"review_sessions":1,"study_session_minutes":45,"review_session_minutes":20,"learning_order":1}]}. '
             "Choose larger total_minutes and more sessions for harder or higher-priority topics. "
+            "Set study_session_minutes and review_session_minutes to appropriate values for each topic instead of defaulting to the same duration for every topic. "
             "Set learning_order so foundational topics come before dependent topics. "
             f"Course: {payload.course_name}. "
             f"Exam date: {payload.exam_date.isoformat()}. "
@@ -102,6 +103,8 @@ class PlannerAgent:
                     "total_minutes": 120,
                     "session_count": 2,
                     "review_sessions": 1,
+                    "study_session_minutes": 60,
+                    "review_session_minutes": 30,
                     "learning_order": index,
                 }
                 for index, topic in enumerate(topics, start=1)
