@@ -1,4 +1,5 @@
 import json
+from datetime import date
 from typing import TypedDict
 
 from langchain_openai import ChatOpenAI
@@ -49,6 +50,7 @@ class PlannerAgent:
     def _analyze_topics(self, state: PlannerAgentState) -> PlannerAgentState:
         payload = state["payload"]
         normalized_topics = state["normalized_topics"]
+        days_until_exam = max(1, (payload.exam_date - date.today()).days)
 
         if not normalized_topics:
             return {
@@ -72,9 +74,13 @@ class PlannerAgent:
             "Choose larger total_minutes and more sessions for harder or higher-priority topics. "
             "Set study_session_minutes and review_session_minutes to appropriate values for each topic instead of defaulting to the same duration for every topic. "
             "Do not reuse the same study_session_minutes or review_session_minutes for most topics unless the topic difficulty and study style are genuinely very similar. "
+            "Assign review_sessions based on priority, difficulty, and time remaining before the exam. "
+            "Do not give nearly every topic a review session by default. "
+            "Low-priority or easy topics may need zero review sessions, especially when time is limited. "
             "Set learning_order so foundational topics come before dependent topics. "
             f"Course: {payload.course_name}. "
             f"Exam date: {payload.exam_date.isoformat()}. "
+            f"Days until exam: {days_until_exam}. "
             f"Daily study hours: {payload.daily_study_hours}. "
             f"Topics: {json.dumps(normalized_topics)}"
         )
