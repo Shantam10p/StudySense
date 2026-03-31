@@ -71,6 +71,7 @@ class PlannerAgent:
             '{"topics":[{"name":"string","priority":"high|medium|low","difficulty":"easy|medium|hard","total_minutes":120,"session_count":2,"review_sessions":1,"study_session_minutes":45,"review_session_minutes":20,"learning_order":1}]}. '
             "Choose larger total_minutes and more sessions for harder or higher-priority topics. "
             "Set study_session_minutes and review_session_minutes to appropriate values for each topic instead of defaulting to the same duration for every topic. "
+            "Do not reuse the same study_session_minutes or review_session_minutes for most topics unless the topic difficulty and study style are genuinely very similar. "
             "Set learning_order so foundational topics come before dependent topics. "
             f"Course: {payload.course_name}. "
             f"Exam date: {payload.exam_date.isoformat()}. "
