@@ -111,9 +111,27 @@ class PlannerService:
             key=lambda topic: int(topic.get("learning_order", 9999)),
         )
 
+        topic_sessions = [self._build_topic_sessions(topic) for topic in sorted_topics]
+        study_queues = [
+            [session for session in sessions if session.get("task_type") == "study"]
+            for sessions in topic_sessions
+        ]
+        review_queues = [
+            [session for session in sessions if session.get("task_type") == "review"]
+            for sessions in topic_sessions
+        ]
+
         sessions: list[dict] = []
-        for topic in sorted_topics:
-            sessions.extend(self._build_topic_sessions(topic))
+
+        while any(study_queues):
+            for queue in study_queues:
+                if queue:
+                    sessions.append(queue.pop(0))
+
+        while any(review_queues):
+            for queue in review_queues:
+                if queue:
+                    sessions.append(queue.pop(0))
 
         return sessions or self._build_fallback_sessions(fallback_topics)
 
@@ -234,7 +252,7 @@ class PlannerService:
         day_minutes_used = [0 for _ in plan_dates]
         day_index = 0
         for session in sessions:
-            session_minutes = max(30, int(session.get("duration_minutes", 30)))
+            session_minutes = int(session.get("duration_minutes", 30))
             while (
                 day_index < len(day_sessions) - 1
                 and day_minutes_used[day_index] + session_minutes > total_minutes
@@ -257,7 +275,7 @@ class PlannerService:
                             task_type=session["task_type"],
                             textbook=textbook,
                         ),
-                        "duration_minutes": max(30, int(session.get("duration_minutes", 30))),
+                        "duration_minutes": int(session.get("duration_minutes", 30)),
                         "task_type": session["task_type"],
                         "position": position,
                     }
