@@ -51,6 +51,7 @@ class PlannerAgent:
         payload = state["payload"]
         normalized_topics = state["normalized_topics"]
         days_until_exam = max(1, (payload.exam_date - date.today()).days)
+        total_available_minutes = days_until_exam * int(payload.daily_study_hours * 60)
 
         if not normalized_topics:
             return {
@@ -64,26 +65,32 @@ class PlannerAgent:
                 "analysis": self._build_fallback_analysis(normalized_topics),
             }
 
-        prompt = (
-            "You are a study planning assistant. "
-            "You must return raw valid JSON only. "
-            "Do not wrap the JSON in Markdown code fences. "
-            "Do not include any explanation or extra text. "
-            "Return only valid JSON with this shape: "
-            '{"topics":[{"name":"string","priority":"high|medium|low","difficulty":"easy|medium|hard","total_minutes":120,"session_count":2,"review_sessions":1,"study_session_minutes":45,"review_session_minutes":20,"learning_order":1}]}. '
-            "Choose larger total_minutes and more sessions for harder or higher-priority topics. "
-            "Set study_session_minutes and review_session_minutes to appropriate values for each topic instead of defaulting to the same duration for every topic. "
-            "Do not reuse the same study_session_minutes or review_session_minutes for most topics unless the topic difficulty and study style are genuinely very similar. "
-            "Assign review_sessions based on priority, difficulty, and time remaining before the exam. "
-            "Do not give nearly every topic a review session by default. "
-            "Low-priority or easy topics may need zero review sessions, especially when time is limited. "
-            "Set learning_order so foundational topics come before dependent topics. "
-            f"Course: {payload.course_name}. "
-            f"Exam date: {payload.exam_date.isoformat()}. "
-            f"Days until exam: {days_until_exam}. "
-            f"Daily study hours: {payload.daily_study_hours}. "
-            f"Topics: {json.dumps(normalized_topics)}"
-        )
+        prompt = f"""You are a study planning assistant. Return raw valid JSON only. No markdown fences, no explanation.
+
+Create a study plan for the following:
+
+Course: {payload.course_name}
+Exam date: {payload.exam_date.isoformat()}
+Days until exam: {days_until_exam}
+Daily study hours: {payload.daily_study_hours}
+Total available minutes: {total_available_minutes}
+Topics: {json.dumps(normalized_topics)}
+
+Step 1 — Budget: There are {total_available_minutes} total minutes available. The sum of (session_count × study_session_minutes) + (review_sessions × review_session_minutes) across ALL topics must be ≤ {total_available_minutes}. Distribute this budget proportionally based on each topic's priority and difficulty.
+
+Step 2 — Session design:
+- Harder/higher-priority topics get longer sessions (30–60 min) and more of them.
+- Easier/lower-priority topics get shorter sessions (15–30 min) and fewer.
+- Vary durations per topic — each topic should reflect its own difficulty.
+- Review sessions are earned, not default. Only assign them to high-priority or hard topics. Easy or low-priority topics get 0 review sessions.
+
+Step 3 — Ordering: Set learning_order so prerequisite/foundational topics come first.
+
+Return JSON matching this schema:
+{{"topics":[{{"name":"topic name","priority":"high|medium|low","difficulty":"easy|medium|hard","total_minutes":"<int>","session_count":"<int>","review_sessions":"<int: 0 if not needed>","study_session_minutes":"<int: varies per topic>","review_session_minutes":"<int: 0 if no reviews>","learning_order":"<int>"}}]}}
+
+Critical: The total scheduled minutes across all topics must not exceed {total_available_minutes}.
+Return only the JSON object."""
 
         try:
             response = self.llm.invoke(prompt)
