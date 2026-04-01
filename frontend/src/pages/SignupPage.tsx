@@ -20,7 +20,7 @@ export default function SignupPage() {
       const data = await signupUser({ name, email, password });
       localStorage.setItem("auth_token", data.access_token);
       localStorage.setItem("auth_user", JSON.stringify(data.user));
-      navigate("/courses");
+      navigate("/dashboard");
     } catch (err: any) {
       setError(err?.message || "Failed to sign up");
     } finally {

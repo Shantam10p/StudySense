@@ -19,7 +19,7 @@ export default function LoginPage() {
       const data = await loginUser({ email, password });
       localStorage.setItem("auth_token", data.access_token);
       localStorage.setItem("auth_user", JSON.stringify(data.user));
-      navigate("/courses");
+      navigate("/dashboard");
     } catch (err: any) {
       setError(err?.message || "Failed to login");
     } finally {
