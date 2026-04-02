@@ -134,20 +134,20 @@ export default function PlannerPage() {
               </div>
             )}
 
-            <div className="mt-8 flex items-center gap-4">
+            <div className="mt-6 flex items-center gap-4">
               <button
                 type="submit"
                 disabled={loading}
-                className="bg-gradient-to-r from-[#cdc0ec] to-[#bfb2de] text-[#443b5f] font-semibold py-3 px-6 rounded-lg hover:opacity-90 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                className="bg-gradient-to-r from-[#cdc0ec] to-[#bfb2de] text-[#443b5f] font-medium py-2.5 px-5 rounded-lg hover:opacity-90 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 text-sm"
               >
                 {loading ? (
                   <>
-                    <span className="material-symbols-outlined animate-spin">progress_activity</span>
+                    <span className="material-symbols-outlined animate-spin text-base">progress_activity</span>
                     <span>Generating AI Plan...</span>
                   </>
                 ) : (
                   <>
-                    <span className="material-symbols-outlined">auto_awesome</span>
+                    <span className="material-symbols-outlined text-base">auto_awesome</span>
                     <span>Generate Plan</span>
                   </>
                 )}
@@ -156,7 +156,7 @@ export default function PlannerPage() {
               <button
                 type="button"
                 onClick={() => navigate("/courses")}
-                className="text-[#acabaa] hover:text-[#e7e5e5] font-medium transition-colors"
+                className="text-[#acabaa] hover:text-[#e7e5e5] font-medium transition-colors text-sm"
               >
                 Cancel
               </button>
