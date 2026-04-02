@@ -337,18 +337,9 @@ export default function DashboardPage() {
 
           <div className="col-span-4 space-y-6">
             <div className="bg-[#4b4166]/40 backdrop-blur-md p-6 rounded-xl border-none shadow-lg text-[#dbcefb] relative overflow-hidden">
-              <div className="flex items-start gap-4 mb-4">
-                <div className="w-12 h-12 rounded-full bg-[#4b4166] flex items-center justify-center shrink-0">
-                  <span className="material-symbols-outlined text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>
-                    smart_toy
-                  </span>
-                </div>
-                <div>
-                  <p className="text-sm font-medium leading-relaxed">
-                    "Focus is the art of saying no to the noise. You're {stats.completed > 0 ? "making progress" : "ready to start"}, {userName}."
-                  </p>
-                </div>
-              </div>
+              <p className="text-sm font-medium leading-relaxed">
+                "Focus is the art of saying no to the noise. You're {stats.completed > 0 ? "making progress" : "ready to start"}, {userName}."
+              </p>
               <div className="absolute -bottom-4 -right-4 opacity-10">
                 <span className="material-symbols-outlined text-[100px]" style={{ fontVariationSettings: "'FILL' 1" }}>
                   auto_awesome
