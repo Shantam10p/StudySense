@@ -2,7 +2,6 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
 import { loginUser } from "../api";
-import { Button } from "../components/Button";
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -11,7 +10,8 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  async function onLogin() {
+  async function onLogin(e: React.FormEvent) {
+    e.preventDefault();
     setLoading(true);
     setError(null);
 
@@ -28,46 +28,91 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#F8FAFC] via-[#F1F5F9] to-[#E0E7FF] flex items-center justify-center px-6">
-      <div className="w-full max-w-md rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-        <h1 className="text-2xl font-semibold text-slate-900">Login</h1>
-        <p className="mt-2 text-sm text-slate-600">Sign in to continue to Sensei.</p>
+    <div className="min-h-screen bg-[#0e0e0e] flex items-center justify-center px-6 relative overflow-hidden">
+      <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{
+        backgroundImage: "url('data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E')"
+      }}></div>
 
-        <div className="mt-6 space-y-4">
-          <label className="block">
-            <span className="text-sm font-medium text-slate-700">Email</span>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="you@example.com"
-            />
-          </label>
-
-          <label className="block">
-            <span className="text-sm font-medium text-slate-700">Password</span>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Enter your password"
-            />
-          </label>
+      <div className="w-full max-w-md relative z-10">
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center gap-3 mb-4">
+            <div className="w-12 h-12 bg-[#4b4166] rounded-xl flex items-center justify-center">
+              <svg className="w-7 h-7 text-[#cdc0ec]" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M20 9V7c0-1.1-.9-2-2-2h-3c0-1.66-1.34-3-3-3S9 3.34 9 5H6c-1.1 0-2 .9-2 2v2c-1.66 0-3 1.34-3 3s1.34 3 3 3v4c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2v-4c1.66 0 3-1.34 3-3s-1.34-3-3-3zM7.5 11.5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5S9.83 13 9 13s-1.5-.67-1.5-1.5zM16 17H8v-2h8v2zm-1-4c-.83 0-1.5-.67-1.5-1.5S14.17 10 15 10s1.5.67 1.5 1.5S15.83 13 15 13z"/>
+              </svg>
+            </div>
+            <h1 className="text-3xl font-['Manrope'] font-bold text-[#cdc0ec]">Sensei</h1>
+          </div>
+          <p className="text-[#acabaa] text-sm">Welcome back to your learning journey</p>
         </div>
 
-        <div className="mt-6 flex items-center gap-3">
-          <Button onClick={onLogin}>{loading ? "Logging in..." : "Login"}</Button>
-          {error ? <p className="text-sm text-red-600">{error}</p> : null}
-        </div>
+        <div className="bg-[#131313] border border-[#484848]/20 rounded-xl p-8 shadow-xl">
+          <h2 className="text-2xl font-['Manrope'] font-semibold text-[#e7e5e5] mb-2">Sign In</h2>
+          <p className="text-sm text-[#acabaa] mb-6">Enter your credentials to continue</p>
 
-        <p className="mt-6 text-sm text-slate-600">
-          Don&apos;t have an account?{" "}
-          <Link to="/signup" className="font-medium text-blue-600 hover:text-blue-700">
-            Sign up
-          </Link>
-        </p>
+          <form onSubmit={onLogin} className="space-y-5">
+            <div>
+              <label className="block text-sm font-medium text-[#e7e5e5] mb-2">
+                Email Address
+              </label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full bg-[#1f2020] border border-[#484848]/30 rounded-lg px-4 py-3 text-[#e7e5e5] placeholder:text-[#767575] focus:outline-none focus:border-[#cdc0ec] focus:ring-1 focus:ring-[#cdc0ec] transition-colors"
+                placeholder="you@example.com"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-[#e7e5e5] mb-2">
+                Password
+              </label>
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full bg-[#1f2020] border border-[#484848]/30 rounded-lg px-4 py-3 text-[#e7e5e5] placeholder:text-[#767575] focus:outline-none focus:border-[#cdc0ec] focus:ring-1 focus:ring-[#cdc0ec] transition-colors"
+                placeholder="Enter your password"
+                required
+              />
+            </div>
+
+            {error && (
+              <div className="bg-[#7f2737]/20 border border-[#ec7c8a]/30 rounded-lg p-3">
+                <p className="text-sm text-[#ec7c8a]">{error}</p>
+              </div>
+            )}
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-gradient-to-r from-[#cdc0ec] to-[#bfb2de] text-[#443b5f] font-semibold py-3 px-4 rounded-lg hover:opacity-90 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            >
+              {loading ? (
+                <>
+                  <span className="material-symbols-outlined animate-spin">progress_activity</span>
+                  <span>Signing in...</span>
+                </>
+              ) : (
+                <>
+                  <span>Sign In</span>
+                  <span className="material-symbols-outlined">arrow_forward</span>
+                </>
+              )}
+            </button>
+          </form>
+
+          <div className="mt-6 text-center">
+            <p className="text-sm text-[#acabaa]">
+              Don't have an account?{" "}
+              <Link to="/signup" className="text-[#cdc0ec] hover:text-[#bfb2de] font-medium transition-colors">
+                Sign up
+              </Link>
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   );

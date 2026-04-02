@@ -1,9 +1,8 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { generatePlan } from "../api/index";
-import { Button } from "../components/Button";
+import { Sidebar } from "../components/Sidebar";
 
 export default function PlannerPage() {
   const navigate = useNavigate();
@@ -16,7 +15,8 @@ export default function PlannerPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  async function onGenerate() {
+  async function onGenerate(e: React.FormEvent) {
+    e.preventDefault();
     setLoading(true);
     setError(null);
 
@@ -44,93 +44,124 @@ export default function PlannerPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#F8FAFC] via-[#F1F5F9] to-[#E0E7FF]">
-      <div className="px-6 pt-6">
-        <Button onClick={() => navigate("/courses")}>Back</Button>
-      </div>
-
-      <main className="mx-auto max-w-[900px] px-6 py-8">
-        <div className="mb-6">
-          <h1 className="text-2xl font-semibold text-slate-900">Create Study Plan</h1>
-        </div>
-
-        <div className="bg-white border border-slate-200 rounded-xl shadow-sm p-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <label className="block">
-              <span className="text-sm font-medium text-slate-700">
-                Course name
-              </span>
-              <input
-                value={courseName}
-                onChange={(e) => setCourseName(e.target.value)}
-                className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="e.g. Organic Chemistry"
-              />
-            </label>
-
-            <label className="block">
-              <span className="text-sm font-medium text-slate-700">
-                Exam date
-              </span>
-              <input
-                type="date"
-                value={examDate}
-                onChange={(e) => setExamDate(e.target.value)}
-                className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </label>
-
-            <label className="block">
-              <span className="text-sm font-medium text-slate-700">
-                Daily study hours
-              </span>
-              <input
-                type="number"
-                min={0}
-                step={0.5}
-                value={dailyStudyHours}
-                onChange={(e) => setDailyStudyHours(Number(e.target.value))}
-                className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </label>
-
-            <label className="block">
-              <span className="text-sm font-medium text-slate-700">
-                Textbook (optional)
-              </span>
-              <input
-                value={textbook}
-                onChange={(e) => setTextbook(e.target.value)}
-                className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="e.g. Campbell Biology"
-              />
-            </label>
-
-            <label className="block md:col-span-2">
-              <span className="text-sm font-medium text-slate-700">
-                Topics (comma or newline separated)
-              </span>
-              <textarea
-                value={topicsText}
-                onChange={(e) => setTopicsText(e.target.value)}
-                className="mt-1 w-full min-h-28 rounded-md border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder={"Limits, Derivatives, Integrals\nSeries\nOptimization"}
-              />
-            </label>
+    <div className="flex min-h-screen bg-[#0e0e0e]">
+      <Sidebar />
+      <main className="ml-64 flex-1 flex flex-col">
+        <header className="flex flex-col pt-8 pb-6 px-12 max-w-screen-2xl">
+          <div className="space-y-2">
+            <span className="text-[#8fa1a1] text-sm tracking-widest uppercase">AI-Powered Planning</span>
+            <h2 className="font-['Manrope'] text-[3rem] leading-tight font-light text-[#cdc0ec]">
+              Create Study Plan
+            </h2>
+            <p className="text-[#acabaa] text-sm">Let Sensei's AI design your personalized learning path</p>
           </div>
+        </header>
 
-          <div className="mt-5 flex items-center gap-3">
-            <button
-              type="button"
-              onClick={onGenerate}
-              disabled={loading}
-              className="inline-flex items-center rounded-md px-4 py-2 text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-60"
-            >
-              {loading ? "Generating..." : "Generate"}
-            </button>
+        <div className="px-12 pb-8 max-w-screen-2xl">
+          <form onSubmit={onGenerate} className="bg-[#131313] border border-[#484848]/20 rounded-xl p-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-sm font-medium text-[#e7e5e5] mb-2">
+                  Course Name
+                </label>
+                <input
+                  value={courseName}
+                  onChange={(e) => setCourseName(e.target.value)}
+                  className="w-full bg-[#1f2020] border border-[#484848]/30 rounded-lg px-4 py-3 text-[#e7e5e5] placeholder:text-[#767575] focus:outline-none focus:border-[#cdc0ec] focus:ring-1 focus:ring-[#cdc0ec] transition-colors"
+                  placeholder="e.g. Organic Chemistry"
+                  required
+                />
+              </div>
 
-            {error ? <p className="text-sm text-red-600">{error}</p> : null}
-          </div>
+              <div>
+                <label className="block text-sm font-medium text-[#e7e5e5] mb-2">
+                  Exam Date
+                </label>
+                <input
+                  type="date"
+                  value={examDate}
+                  onChange={(e) => setExamDate(e.target.value)}
+                  className="w-full bg-[#1f2020] border border-[#484848]/30 rounded-lg px-4 py-3 text-[#e7e5e5] placeholder:text-[#767575] focus:outline-none focus:border-[#cdc0ec] focus:ring-1 focus:ring-[#cdc0ec] transition-colors"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-[#e7e5e5] mb-2">
+                  Daily Study Hours
+                </label>
+                <input
+                  type="number"
+                  min={0.5}
+                  max={12}
+                  step={0.5}
+                  value={dailyStudyHours}
+                  onChange={(e) => setDailyStudyHours(Number(e.target.value))}
+                  className="w-full bg-[#1f2020] border border-[#484848]/30 rounded-lg px-4 py-3 text-[#e7e5e5] placeholder:text-[#767575] focus:outline-none focus:border-[#cdc0ec] focus:ring-1 focus:ring-[#cdc0ec] transition-colors"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-[#e7e5e5] mb-2">
+                  Textbook <span className="text-[#767575]">(optional)</span>
+                </label>
+                <input
+                  value={textbook}
+                  onChange={(e) => setTextbook(e.target.value)}
+                  className="w-full bg-[#1f2020] border border-[#484848]/30 rounded-lg px-4 py-3 text-[#e7e5e5] placeholder:text-[#767575] focus:outline-none focus:border-[#cdc0ec] focus:ring-1 focus:ring-[#cdc0ec] transition-colors"
+                  placeholder="e.g. Campbell Biology"
+                />
+              </div>
+
+              <div className="md:col-span-2">
+                <label className="block text-sm font-medium text-[#e7e5e5] mb-2">
+                  Topics <span className="text-[#767575]">(comma or newline separated)</span>
+                </label>
+                <textarea
+                  value={topicsText}
+                  onChange={(e) => setTopicsText(e.target.value)}
+                  className="w-full min-h-32 bg-[#1f2020] border border-[#484848]/30 rounded-lg px-4 py-3 text-[#e7e5e5] placeholder:text-[#767575] focus:outline-none focus:border-[#cdc0ec] focus:ring-1 focus:ring-[#cdc0ec] transition-colors resize-none"
+                  placeholder="Limits, Derivatives, Integrals&#10;Series&#10;Optimization"
+                  required
+                />
+              </div>
+            </div>
+
+            {error && (
+              <div className="mt-6 bg-[#7f2737]/20 border border-[#ec7c8a]/30 rounded-lg p-3">
+                <p className="text-sm text-[#ec7c8a]">{error}</p>
+              </div>
+            )}
+
+            <div className="mt-8 flex items-center gap-4">
+              <button
+                type="submit"
+                disabled={loading}
+                className="bg-gradient-to-r from-[#cdc0ec] to-[#bfb2de] text-[#443b5f] font-semibold py-3 px-6 rounded-lg hover:opacity-90 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              >
+                {loading ? (
+                  <>
+                    <span className="material-symbols-outlined animate-spin">progress_activity</span>
+                    <span>Generating AI Plan...</span>
+                  </>
+                ) : (
+                  <>
+                    <span className="material-symbols-outlined">auto_awesome</span>
+                    <span>Generate Plan</span>
+                  </>
+                )}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => navigate("/courses")}
+                className="text-[#acabaa] hover:text-[#e7e5e5] font-medium transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
+          </form>
         </div>
       </main>
     </div>
