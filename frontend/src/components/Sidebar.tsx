@@ -38,18 +38,6 @@ export function Sidebar() {
         </button>
 
         <button
-          onClick={() => navigate("/plan")}
-          className={`w-full text-left px-4 py-3 transition-colors duration-300 flex items-center gap-3 font-medium text-sm tracking-tight rounded-lg ${
-            isActive("/plan")
-              ? "bg-[#4b4166]/40 text-[#cdc0ec]"
-              : "text-[#acabaa] hover:text-[#e7e5e5] hover:bg-[#1f2020]"
-          }`}
-        >
-          <span className="material-symbols-outlined">event_note</span>
-          My plan
-        </button>
-
-        <button
           onClick={() => navigate("/courses")}
           className={`w-full text-left px-4 py-3 transition-colors duration-300 flex items-center gap-3 font-medium text-sm tracking-tight rounded-lg ${
             isActive("/courses")
@@ -59,18 +47,6 @@ export function Sidebar() {
         >
           <span className="material-symbols-outlined">menu_book</span>
           My courses
-        </button>
-
-        <button
-          onClick={() => navigate("/topics")}
-          className={`w-full text-left px-4 py-3 transition-colors duration-300 flex items-center gap-3 font-medium text-sm tracking-tight rounded-lg ${
-            isActive("/topics")
-              ? "bg-[#4b4166]/40 text-[#cdc0ec]"
-              : "text-[#acabaa] hover:text-[#e7e5e5] hover:bg-[#1f2020]"
-          }`}
-        >
-          <span className="material-symbols-outlined">topic</span>
-          Topics
         </button>
 
         <button

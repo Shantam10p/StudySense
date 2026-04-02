@@ -6,6 +6,7 @@ import DashboardPage from "./pages/DashboardPage";
 import LoginPage from "./pages/LoginPage";
 import PlannerPage from "./pages/PlannerPage";
 import PlannerViewPage from "./pages/PlannerViewPage";
+import ProgressPage from "./pages/ProgressPage";
 import SignupPage from "./pages/SignupPage";
 
 function App() {
@@ -16,6 +17,7 @@ function App() {
       <Route path="/signup" element={<SignupPage />} />
       <Route path="/dashboard" element={<DashboardPage />} />
       <Route path="/courses" element={<CoursesPage />} />
+      <Route path="/progress" element={<ProgressPage />} />
       <Route path="/planner/new" element={<PlannerPage />} />
       <Route path="/planner/:courseId" element={<PlannerViewPage />} />
       <Route path="*" element={<Navigate to="/" replace />} />

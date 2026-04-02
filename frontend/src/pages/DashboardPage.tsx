@@ -192,11 +192,11 @@ export default function DashboardPage() {
     <div className="flex min-h-screen bg-[#0e0e0e]">
       <Sidebar />
       <main className="ml-64 flex-1 flex flex-col">
-        <header className="flex flex-col pt-12 pb-8 px-12 max-w-screen-2xl bg-transparent">
+        <header className="flex flex-col pt-8 pb-6 px-12 max-w-screen-2xl bg-transparent">
           <div className="flex justify-between items-end">
             <div className="space-y-2">
               <p className="text-[#8fa1a1] font-body text-sm tracking-wide">{getCurrentDate()}</p>
-              <h2 className="font-['Manrope'] text-[3.5rem] leading-tight font-light text-[#cdc0ec]">
+              <h2 className="font-['Manrope'] text-[3rem] leading-tight font-light text-[#cdc0ec]">
                 {getGreeting()}, {userName}. <br />
                 <span className="text-[#e7e5e5]">
                   You have {stats.sessionsToday} {stats.sessionsToday === 1 ? "session" : "sessions"} today.
@@ -225,8 +225,8 @@ export default function DashboardPage() {
           </div>
         </header>
 
-        <div className="px-12 pb-20 max-w-screen-2xl grid grid-cols-12 gap-8">
-          <div className="col-span-8 space-y-10">
+        <div className="px-12 pb-8 max-w-screen-2xl grid grid-cols-12 gap-6">
+          <div className="col-span-8 space-y-6">
             <section className="grid grid-cols-4 gap-4">
               <div className="bg-[#131313] p-6 rounded-xl space-y-2 border-none">
                 <p className="text-[#acabaa] text-xs font-medium uppercase tracking-widest">Sessions Today</p>
@@ -249,7 +249,7 @@ export default function DashboardPage() {
               </div>
             </section>
 
-            <section className="space-y-6">
+            <section className="space-y-4">
               <h3 className="text-xl font-['Manrope'] font-semibold text-[#e7e5e5]">Today's Study Plan</h3>
               {error && <p className="text-sm text-[#ec7c8a]">{error}</p>}
               {todaySessions.length === 0 ? (
@@ -335,7 +335,7 @@ export default function DashboardPage() {
             </section>
           </div>
 
-          <div className="col-span-4 space-y-8">
+          <div className="col-span-4 space-y-6">
             <div className="bg-[#4b4166]/40 backdrop-blur-md p-6 rounded-xl border-none shadow-lg text-[#dbcefb] relative overflow-hidden">
               <div className="flex items-start gap-4 mb-4">
                 <div className="w-12 h-12 rounded-full bg-[#4b4166] flex items-center justify-center shrink-0">
@@ -392,23 +392,6 @@ export default function DashboardPage() {
               </button>
             </div>
 
-            <div className="bg-gradient-to-br from-[#191a1a] to-[#000000] p-6 rounded-xl border border-[#484848]/10">
-              <div className="flex flex-col items-center text-center space-y-4">
-                <div className="w-16 h-16 rounded-full bg-[#252626] flex items-center justify-center text-[#bfb2de]">
-                  <span className="material-symbols-outlined text-3xl">add_task</span>
-                </div>
-                <div>
-                  <h5 className="text-lg font-['Manrope'] font-semibold">New Journey?</h5>
-                  <p className="text-sm text-[#acabaa] mt-1">Design a custom learning path with Sensei's AI engine.</p>
-                </div>
-                <button
-                  onClick={() => navigate("/planner/new")}
-                  className="bg-[#0e0e0e] text-[#e7e5e5] px-6 py-2 rounded-full text-xs font-bold uppercase tracking-widest hover:bg-[#e7e5e5] hover:text-[#0e0e0e] transition-all duration-300"
-                >
-                  Start Planning
-                </button>
-              </div>
-            </div>
           </div>
         </div>
       </main>
