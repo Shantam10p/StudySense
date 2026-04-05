@@ -9,49 +9,50 @@ type CourseCardProps = {
 
 export function CourseCard({ course, onDelete, onView }: CourseCardProps) {
   return (
-    <div className="bg-white border border-slate-200 rounded-lg shadow-sm p-5 hover:shadow-md transition-shadow">
-      <div className="flex items-start justify-between gap-2">
-        <h3 className="text-base font-semibold text-slate-900">
-          {course.course_name}
-        </h3>
+    <div className="group relative bg-[#131313] border border-[#484848]/20 rounded-xl p-6 hover:border-[#cdc0ec]/40 transition-all duration-300 hover:shadow-lg hover:shadow-[#cdc0ec]/5">
+      <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#cdc0ec] to-[#bfb2de] rounded-t-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+      
+      <div className="flex items-start justify-between gap-2 mb-4">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-lg bg-[#4b4166]/40 flex items-center justify-center">
+            <span className="material-symbols-outlined text-[#cdc0ec] text-xl">school</span>
+          </div>
+          <h3 className="text-lg font-['Manrope'] font-semibold text-[#e7e5e5]">
+            {course.course_name}
+          </h3>
+        </div>
 
-        {onDelete ? (  //this is a ternery operator so basically only show the delete button if onDelete is provided by the parent component
+        {onDelete ? (
           <button
             type="button"
             onClick={onDelete}
-            className="text-slate-400 hover:text-red-600"
+            className="text-[#acabaa] hover:text-[#ec7c8a] transition-colors"
             aria-label="Delete course"
           >
-            <svg
-              className="h-4 w-4"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-              aria-hidden="true"
-            >
-              <path d="M7.5 3.5A1.5 1.5 0 0 1 9 2h2a1.5 1.5 0 0 1 1.5 1.5V4H15a.75.75 0 0 1 0 1.5h-.44l-.62 9.316A1.75 1.75 0 0 1 12.2 16.5H7.8a1.75 1.75 0 0 1-1.74-1.684L5.44 5.5H5A.75.75 0 0 1 5 4h2.5v-.5Zm1.5.5h2V3.5a.5.5 0 0 0-.5-.5H9a.5.5 0 0 0-.5.5V4Zm-.97 3.25a.75.75 0 0 1 .8.7l.25 5.5a.75.75 0 1 1-1.5.07l-.25-5.5a.75.75 0 0 1 .7-.77Zm4.44.7a.75.75 0 0 0-1.5-.07l-.25 5.5a.75.75 0 0 0 1.5.07l.25-5.5Z" />
-            </svg>
+            <span className="material-symbols-outlined text-xl">delete</span>
           </button>
         ) : null}
       </div>
 
-      <div className="mt-4 space-y-2 text-sm text-slate-700">
-        <div className="flex items-center">
-          <svg className="h-4 w-4 text-slate-500" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-            <path d="M6 2.75a.75.75 0 0 0-1.5 0V4H3.5A1.5 1.5 0 0 0 2 5.5v10A1.5 1.5 0 0 0 3.5 17h13a1.5 1.5 0 0 0 1.5-1.5v-10A1.5 1.5 0 0 0 16.5 4H15V2.75a.75.75 0 0 0-1.5 0V4H6V2.75ZM3.5 7H16.5v8.5a.5.5 0 0 1-.5.5h-12a.5.5 0 0 1-.5-.5V7Z" />
-          </svg>
-          <span className="ml-2">{course.exam_date}</span>
+      <div className="space-y-3 mb-5">
+        <div className="flex items-center gap-2 text-sm text-[#acabaa]">
+          <span className="material-symbols-outlined text-base text-[#8fa1a1]">event</span>
+          <span>Exam: {course.exam_date}</span>
         </div>
-        <div className="flex items-center">
-          <svg className="h-4 w-4 text-slate-500" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-            <path fillRule="evenodd" d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16Zm.75-12a.75.75 0 1 0-1.5 0v4.19l-2.22 2.22a.75.75 0 1 0 1.06 1.06l2.41-2.41A1.5 1.5 0 0 0 12 9.5V6Z" clipRule="evenodd" />
-          </svg>
-          <span className="ml-2">{course.daily_study_hours}h/day</span>
+        <div className="flex items-center gap-2 text-sm text-[#acabaa]">
+          <span className="material-symbols-outlined text-base text-[#8fa1a1]">schedule</span>
+          <span>{course.daily_study_hours}h per day</span>
         </div>
       </div>
 
-      <div className="mt-4">
-        <button type="button" onClick={onView} className="text-sm font-medium text-blue-600 hover:text-blue-700">
-          View
+      <div className="pt-4 border-t border-[#484848]/20">
+        <button 
+          type="button" 
+          onClick={onView} 
+          className="w-full px-4 py-2 bg-[#4b4166]/20 hover:bg-[#4b4166]/40 text-[#cdc0ec] rounded-lg font-medium text-sm transition-all duration-300 flex items-center justify-center gap-2 group-hover:bg-gradient-to-r group-hover:from-[#cdc0ec] group-hover:to-[#bfb2de] group-hover:text-[#443b5f]"
+        >
+          <span>View Plan</span>
+          <span className="material-symbols-outlined text-base">arrow_forward</span>
         </button>
       </div>
     </div>

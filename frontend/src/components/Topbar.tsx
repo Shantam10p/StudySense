@@ -35,7 +35,7 @@ export function TopBar({ onNewPlan, onLogout }: TopBarProps) {
             </button>
 
             <div className="text-xl font-semibold text-slate-900">
-              StudySense
+              Sensei
             </div>
           </div>
 

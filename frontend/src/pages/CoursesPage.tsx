@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import type { Course } from "../types/course";
 
 import { deleteCourse, fetchCourses } from "../api";
-import { TopBar } from "../components/Topbar";
+import { Sidebar } from "../components/Sidebar";
 import { CourseCard } from "../components/CourseCard";
 import { ConfirmModal } from "../components/ConfirmModal";
 
@@ -16,12 +16,6 @@ export default function CoursesPage() {
   const [error, setError] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<number | null>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
-
-  function handleLogout() {
-    localStorage.removeItem("auth_token");
-    localStorage.removeItem("auth_user");
-    navigate("/");
-  }
 
   useEffect(() => {
     async function loadCourses() {
@@ -40,38 +34,52 @@ export default function CoursesPage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#F8FAFC] via-[#F1F5F9] to-[#E0E7FF]">
-      <TopBar onNewPlan={() => navigate("/planner/new")} onLogout={handleLogout} />
-      <div className="p-6 max-w-4xl mx-auto">
-        <h1 className="text-3xl font-bold text-blue-800 mb-6 border-b-2 border-blue-300 pb-2 inline-block">
-         Your  Courses
-        </h1>
-
-        {deleteError ? (
-          <p className="mb-4 text-sm text-red-600">{deleteError}</p>
-        ) : null}
-
-        {loading ? <p className="text-slate-600">Loading courses...</p> : null}
-
-        {!loading && error ? <p className="text-sm text-red-600">{error}</p> : null}
-
-        {!loading && !error && courses.length === 0 ? (
-          <p className="text-slate-600">No courses yet.</p>
-        ) : null}
-
-        {!loading && !error && courses.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {courses.map((course) => (
-              <CourseCard
-                key={course.id}
-                course={course}
-                onDelete={() => setDeletingId(course.id)}
-                onView={() => navigate(`/planner/${course.id}`)}
-              />
-            ))}
+    <div className="flex min-h-screen bg-[#0e0e0e]">
+      <Sidebar />
+      <main className="flex-1 ml-64 min-h-screen">
+        <div className="px-12 pt-12 pb-8 max-w-screen-2xl">
+          <div className="flex justify-between items-end mb-8">
+            <div className="flex flex-col">
+              <span className="text-[#8fa1a1] text-sm tracking-widest uppercase mb-2">My Learning</span>
+              <h2 className="font-['Manrope'] text-[3.5rem] leading-tight font-light text-[#cdc0ec]">My Courses</h2>
+            </div>
+            <button
+              onClick={() => navigate("/planner/new")}
+              className="px-6 py-3 bg-gradient-to-br from-[#cdc0ec] to-[#bfb2de] text-[#443b5f] font-semibold rounded-xl flex items-center gap-2 transition-all hover:scale-[1.02] active:scale-95 shadow-lg shadow-[#cdc0ec]/10"
+            >
+              <span className="material-symbols-outlined">add</span>
+              New Plan
+            </button>
           </div>
-        ) : null}
-      </div>
+        </div>
+
+        <div className="px-12">
+          {deleteError ? (
+            <p className="mb-4 text-sm text-[#ec7c8a]">{deleteError}</p>
+          ) : null}
+
+          {loading ? <p className="text-[#acabaa]">Loading courses...</p> : null}
+
+          {!loading && error ? <p className="text-sm text-[#ec7c8a]">{error}</p> : null}
+
+          {!loading && !error && courses.length === 0 ? (
+            <p className="text-[#acabaa]">No courses yet.</p>
+          ) : null}
+
+          {!loading && !error && courses.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-20">
+              {courses.map((course) => (
+                <CourseCard
+                  key={course.id}
+                  course={course}
+                  onDelete={() => setDeletingId(course.id)}
+                  onView={() => navigate(`/planner/${course.id}`)}
+                />
+              ))}
+            </div>
+          ) : null}
+        </div>
+      </main>
       {deletingId !== null ? (
         <ConfirmModal
           title="Delete course?"
