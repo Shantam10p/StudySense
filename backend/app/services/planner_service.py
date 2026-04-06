@@ -44,7 +44,7 @@ class PlannerService:
             topic_analysis = self.planner_agent.analyze(payload)
             scheduled_sessions = self._build_scheduled_sessions(topic_analysis, normalized_topics)
 
-            generated_days = self._build_deterministic_schedule(
+            generated_days, unscheduled = self._build_deterministic_schedule(
                 sessions=scheduled_sessions,
                 exam_date=payload.exam_date,
                 daily_study_hours=payload.daily_study_hours,
@@ -52,7 +52,19 @@ class PlannerService:
             )
 
             self._replace_course_plan(conn, course_id, generated_days)
-            return self.get_plan_by_course_id(course_id, user_id)
+            stored_plan = self.get_plan_by_course_id(course_id, user_id)
+            warning = None
+            if unscheduled:
+                warning = "We created your study plan, but some sessions could not fit within your daily study limit. Consider increasing your study time or extending your timeline."
+
+            return PlannerGenerateResponse(
+                course_id=stored_plan.course_id,
+                course_name=stored_plan.course_name,
+                exam_date=stored_plan.exam_date,
+                daily_plans=stored_plan.daily_plans,
+                unscheduled=unscheduled,
+                warning=warning,
+            )
         finally:
             conn.close()
 
@@ -69,6 +81,8 @@ class PlannerService:
                 course_name=course["course_name"],
                 exam_date=course["exam_date"],
                 daily_plans=daily_plans,
+                unscheduled=[],
+                warning=None,
             )
         finally:
             conn.close()
@@ -141,12 +155,16 @@ class PlannerService:
         review_sessions = int(topic.get("review_sessions", 1))
         study_session_minutes = int(topic.get("study_session_minutes", 60))
         review_session_minutes = int(topic.get("review_session_minutes", 30))
+        priority = str(topic.get("priority", "medium")).strip().lower() or "medium"
+        learning_order = int(topic.get("learning_order", 9999))
 
         sessions = [
             {
                 "topic": name,
                 "task_type": "study",
                 "duration_minutes": study_session_minutes,
+                "priority": priority,
+                "learning_order": learning_order,
             }
             for _ in range(session_count)
         ]
@@ -156,6 +174,8 @@ class PlannerService:
                 "topic": name,
                 "task_type": "review",
                 "duration_minutes": review_session_minutes,
+                "priority": priority,
+                "learning_order": learning_order,
             }
             for _ in range(review_sessions)
         )
@@ -170,16 +190,22 @@ class PlannerService:
                         "topic": topic,
                         "task_type": "study",
                         "duration_minutes": 60,
+                        "priority": "medium",
+                        "learning_order": 9999,
                     },
                     {
                         "topic": topic,
                         "task_type": "study",
                         "duration_minutes": 60,
+                        "priority": "medium",
+                        "learning_order": 9999,
                     },
                     {
                         "topic": topic,
                         "task_type": "review",
                         "duration_minutes": 30,
+                        "priority": "medium",
+                        "learning_order": 9999,
                     },
                 ]
             )
@@ -241,7 +267,7 @@ class PlannerService:
         exam_date: date,
         daily_study_hours: float,
         textbook: str | None,
-    ) -> list[dict]:
+    ) -> tuple[list[dict], list[dict]]:
         today = date.today()
         available_day_count = max(1, (exam_date - today).days)
         plan_dates = [today + timedelta(days=index) for index in range(available_day_count)]
@@ -251,13 +277,28 @@ class PlannerService:
         n_days = len(plan_dates)
         day_sessions: list[list[dict]] = [[] for _ in plan_dates]
         day_minutes_used = [0] * n_days
+        unscheduled: list[dict] = []
 
-        study_sessions = [s for s in sessions if s.get("task_type") != "review"]
-        review_sessions = [s for s in sessions if s.get("task_type") == "review"]
+        priority_order = {"high": 0, "medium": 1, "low": 2}
+
+        def _session_sort_key(session: dict) -> tuple[int, int]:
+            return (
+                priority_order.get(str(session.get("priority", "medium")).lower(), 1),
+                int(session.get("learning_order", 9999)),
+            )
+
+        study_sessions = sorted(
+            [s for s in sessions if s.get("task_type") != "review"],
+            key=_session_sort_key,
+        )
+        review_sessions = sorted(
+            [s for s in sessions if s.get("task_type") == "review"],
+            key=_session_sort_key,
+        )
 
         max_sessions_per_day = -(-len(sessions) // n_days)  # ceil(n / d)
 
-        def _place_session(session: dict, earliest_day: int) -> None:
+        def _place_session(session: dict, earliest_day: int) -> bool:
             session_minutes = int(session.get("duration_minutes", 30))
             idx = earliest_day
             while idx < n_days - 1 and (
@@ -265,18 +306,24 @@ class PlannerService:
                 or len(day_sessions[idx]) >= max_sessions_per_day
             ):
                 idx += 1
-            if len(day_sessions[idx]) >= max_sessions_per_day:
-                idx = min(range(earliest_day, n_days), key=lambda i: len(day_sessions[i]))
+            if (
+                day_minutes_used[idx] + session_minutes > total_minutes
+                or len(day_sessions[idx]) >= max_sessions_per_day
+            ):
+                unscheduled.append(session)
+                return False
             day_sessions[idx].append(session)
             day_minutes_used[idx] += session_minutes
+            return True
 
         day_index = 0
         for session in study_sessions:
-            _place_session(session, earliest_day=day_index)
-            day_index = next(
-                (i for i, d in enumerate(day_sessions) if session in d),
-                day_index,
-            )
+            placed = _place_session(session, earliest_day=day_index)
+            if placed:
+                day_index = next(
+                    (i for i, d in enumerate(day_sessions) if session in d),
+                    day_index,
+                )
 
         topic_last_study_day: dict[str, int] = {}
         for i, day in enumerate(day_sessions):
@@ -311,7 +358,21 @@ class PlannerService:
 
             generated_days.append({"day": current_date, "tasks": tasks})
 
-        return generated_days
+        unscheduled_tasks = [
+            {
+                "title": self._build_task_title(
+                    topic=session["topic"],
+                    task_type=session["task_type"],
+                    textbook=textbook,
+                ),
+                "duration_minutes": int(session.get("duration_minutes", 30)),
+                "task_type": session["task_type"],
+                "topic": session["topic"],
+            }
+            for session in unscheduled
+        ]
+
+        return generated_days, unscheduled_tasks
 
     def _build_task_title(self, topic: str, task_type: str, textbook: str | None) -> str:
         cleaned_textbook = (textbook or "").strip()

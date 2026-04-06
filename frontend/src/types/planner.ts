@@ -12,6 +12,13 @@ export type PlannerDailyPlan = {
   tasks: PlannerStudyTask[];
 };
 
+export type PlannerUnscheduledTask = {
+  title: string;
+  duration_minutes: number;
+  task_type: string;
+  topic: string;
+};
+
 export type PlannerGenerateRequest = {
   course_name: string;
   exam_date: string;
@@ -25,4 +32,6 @@ export type PlannerGenerateResponse = {
   course_name: string;
   exam_date: string;
   daily_plans: PlannerDailyPlan[];
+  unscheduled?: PlannerUnscheduledTask[];
+  warning?: string | null;
 };

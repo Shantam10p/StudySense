@@ -78,7 +78,12 @@ export default function PlannerPage() {
       };
 
       const data = await generatePlan(payload);
-      navigate(`/planner/${data.course_id}`);
+      navigate(`/planner/${data.course_id}`, {
+        state: {
+          generatedWarning: data.warning ?? null,
+          unscheduled: data.unscheduled ?? [],
+        },
+      });
     } catch (err: any) {
       setError(err?.message || "Failed to generate plan");
     } finally {

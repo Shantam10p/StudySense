@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 
 import { fetchCourse, fetchCoursePlan } from "../api";
 import { Sidebar } from "../components/Sidebar";
@@ -8,11 +8,13 @@ import type { PlannerGenerateResponse } from "../types/planner";
 
 export default function PlannerViewPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { courseId } = useParams();
   const [course, setCourse] = useState<Course | null>(null);
   const [plan, setPlan] = useState<PlannerGenerateResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const generatedWarning = (location.state as { generatedWarning?: string | null } | null)?.generatedWarning;
 
   useEffect(() => {
     async function loadPlannerView(targetCourseId: number) {
@@ -79,6 +81,15 @@ export default function PlannerViewPage() {
           {error && (
             <div className="bg-[#7f2737]/20 border border-[#ec7c8a]/30 rounded-lg p-4 mb-6">
               <p className="text-sm text-[#ec7c8a]">{error}</p>
+            </div>
+          )}
+
+          {generatedWarning && (
+            <div className="bg-[#4b4166]/20 border border-[#cdc0ec]/30 rounded-lg p-4 mb-6">
+              <div className="flex items-start gap-3">
+                <span className="material-symbols-outlined text-[#cdc0ec] text-base mt-0.5">info</span>
+                <p className="text-sm text-[#dbcefb]">{generatedWarning}</p>
+              </div>
             </div>
           )}
 
