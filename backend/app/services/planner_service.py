@@ -337,21 +337,30 @@ class PlannerService:
             _place_session(review, earliest_day=earliest)
 
         generated_days = []
+        study_topic_counts: dict[str, int] = {}
         for current_date, sessions_for_day in zip(plan_dates, day_sessions):
             if not sessions_for_day:
                 continue
 
             tasks = []
             for position, session in enumerate(sessions_for_day, start=1):
+                topic = session["topic"]
+                task_type = session["task_type"]
+                study_occurrence = None
+                if task_type != "review":
+                    study_topic_counts[topic] = study_topic_counts.get(topic, 0) + 1
+                    study_occurrence = study_topic_counts[topic]
+
                 tasks.append(
                     {
                         "title": self._build_task_title(
-                            topic=session["topic"],
-                            task_type=session["task_type"],
+                            topic=topic,
+                            task_type=task_type,
                             textbook=textbook,
+                            study_occurrence=study_occurrence,
                         ),
                         "duration_minutes": int(session.get("duration_minutes", 30)),
-                        "task_type": session["task_type"],
+                        "task_type": task_type,
                         "position": position,
                     }
                 )
@@ -374,13 +383,24 @@ class PlannerService:
 
         return generated_days, unscheduled_tasks
 
-    def _build_task_title(self, topic: str, task_type: str, textbook: str | None) -> str:
+    def _build_task_title(
+        self,
+        topic: str,
+        task_type: str,
+        textbook: str | None,
+        study_occurrence: int | None = None,
+    ) -> str:
         cleaned_textbook = (textbook or "").strip()
         if task_type == "review":
             return f"Review {topic}"
+        action = "Study"
+        if study_occurrence == 2:
+            action = "Continue"
+        elif study_occurrence and study_occurrence >= 3:
+            action = "Revisit"
         if cleaned_textbook:
-            return f"Study {topic} using {cleaned_textbook}"
-        return f"Study {topic}"
+            return f"{action} {topic} using {cleaned_textbook}"
+        return f"{action} {topic}"
 
     def _replace_course_plan(self, conn, course_id: int, generated_days: list[dict]) -> None:
         delete_cursor = conn.cursor()
