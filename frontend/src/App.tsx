@@ -8,11 +8,13 @@ import PlannerPage from "./pages/PlannerPage";
 import PlannerViewPage from "./pages/PlannerViewPage";
 import ProgressPage from "./pages/ProgressPage";
 import SignupPage from "./pages/SignupPage";
+import StudyModePage from "./pages/StudyModePage";
 
 function App() {
   return (
     <Routes>
       <Route path="/" element={<LoginPage />} />
+
       <Route path="/login" element={<Navigate to="/" replace />} />
       <Route path="/signup" element={<SignupPage />} />
       <Route path="/dashboard" element={<DashboardPage />} />
@@ -20,6 +22,7 @@ function App() {
       <Route path="/progress" element={<ProgressPage />} />
       <Route path="/planner/new" element={<PlannerPage />} />
       <Route path="/planner/:courseId" element={<PlannerViewPage />} />
+      <Route path="/study-mode" element={<StudyModePage />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );

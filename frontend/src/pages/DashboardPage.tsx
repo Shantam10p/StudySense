@@ -314,7 +314,16 @@ export default function DashboardPage() {
                         </div>
                         {isActive ? (
                           <button
-                            onClick={() => navigate(`/planner/${session.courseId}`)}
+                            onClick={() =>
+                              navigate("/study-mode", {
+                                state: {
+                                  courseId: session.courseId,
+                                  courseName: session.courseName,
+                                  task: session.task,
+                                  dayIndex: session.dayIndex,
+                                },
+                              })
+                            }
                             className="bg-[#cdc0ec] text-[#443b5f] px-6 py-2 rounded-lg font-semibold text-sm hover:brightness-110 transition-all active:scale-95"
                           >
                             Start Session
