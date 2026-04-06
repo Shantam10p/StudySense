@@ -120,7 +120,7 @@ export default function StudyModePage() {
               <div className="flex-1 space-y-4">
                 <button
                   onClick={() => navigate("/dashboard")}
-                  className="inline-flex items-center gap-2 rounded-full border border-[#484848]/30 px-4 py-2 text-sm text-[#acabaa] transition-colors hover:border-[#cdc0ec]/30 hover:text-[#e7e5e5]"
+                  className="-mt-2 inline-flex items-center gap-2 rounded-full border border-[#484848]/30 px-4 py-2 text-sm text-[#acabaa] transition-colors hover:border-[#cdc0ec]/30 hover:text-[#e7e5e5]"
                 >
                   <span className="material-symbols-outlined text-base">arrow_back</span>
                   Back to Dashboard
