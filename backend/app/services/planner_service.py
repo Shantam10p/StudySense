@@ -248,18 +248,46 @@ class PlannerService:
 
         total_minutes = max(30, int(daily_study_hours * 60))
 
+        n_days = len(plan_dates)
         day_sessions: list[list[dict]] = [[] for _ in plan_dates]
-        day_minutes_used = [0 for _ in plan_dates]
-        day_index = 0
-        for session in sessions:
+        day_minutes_used = [0] * n_days
+
+        study_sessions = [s for s in sessions if s.get("task_type") != "review"]
+        review_sessions = [s for s in sessions if s.get("task_type") == "review"]
+
+        max_sessions_per_day = -(-len(sessions) // n_days)  # ceil(n / d)
+
+        def _place_session(session: dict, earliest_day: int) -> None:
             session_minutes = int(session.get("duration_minutes", 30))
-            while (
-                day_index < len(day_sessions) - 1
-                and day_minutes_used[day_index] + session_minutes > total_minutes
+            idx = earliest_day
+            while idx < n_days - 1 and (
+                day_minutes_used[idx] + session_minutes > total_minutes
+                or len(day_sessions[idx]) >= max_sessions_per_day
             ):
-                day_index += 1
-            day_sessions[day_index].append(session)
-            day_minutes_used[day_index] += session_minutes
+                idx += 1
+            if len(day_sessions[idx]) >= max_sessions_per_day:
+                idx = min(range(earliest_day, n_days), key=lambda i: len(day_sessions[i]))
+            day_sessions[idx].append(session)
+            day_minutes_used[idx] += session_minutes
+
+        day_index = 0
+        for session in study_sessions:
+            _place_session(session, earliest_day=day_index)
+            day_index = next(
+                (i for i, d in enumerate(day_sessions) if session in d),
+                day_index,
+            )
+
+        topic_last_study_day: dict[str, int] = {}
+        for i, day in enumerate(day_sessions):
+            for s in day:
+                if s.get("task_type") != "review":
+                    topic_last_study_day[s["topic"]] = i
+
+        for review in review_sessions:
+            topic = review["topic"]
+            earliest = min(topic_last_study_day.get(topic, 0) + 1, n_days - 1)
+            _place_session(review, earliest_day=earliest)
 
         generated_days = []
         for current_date, sessions_for_day in zip(plan_dates, day_sessions):
