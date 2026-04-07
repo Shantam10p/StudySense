@@ -9,7 +9,7 @@ type CourseCardProps = {
 
 export function CourseCard({ course, onDelete, onView }: CourseCardProps) {
   return (
-    <div className="group relative bg-[#131313] border border-[#484848]/20 rounded-xl p-6 hover:border-[#cdc0ec]/40 transition-all duration-300 hover:shadow-lg hover:shadow-[#cdc0ec]/5">
+    <div className="group relative bg-[#131313] border-2 border-[#2a2a2a] rounded-xl p-6 hover:border-[#cdc0ec]/60 transition-all duration-300 hover:shadow-lg hover:shadow-[#cdc0ec]/5">
       <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#cdc0ec] to-[#bfb2de] rounded-t-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
       
       <div className="flex items-start justify-between gap-2 mb-4">

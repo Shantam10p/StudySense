@@ -132,24 +132,6 @@ export default function DashboardPage() {
     };
   };
 
-  const getDifficultyColor = (difficulty: string) => {
-    switch (difficulty.toLowerCase()) {
-      case "easy":
-        return "secondary";
-      case "medium":
-        return "outline";
-      case "hard":
-        return "error-dim";
-      default:
-        return "outline";
-    }
-  };
-
-  const getDifficultyBadge = () => {
-    const difficulties = ["Easy", "Medium", "Hard"];
-    const difficulty = difficulties[Math.floor(Math.random() * difficulties.length)];
-    return difficulty;
-  };
 
   const getSessionIcon = (index: number) => {
     const icons = ["psychology", "palette", "science", "calculate"];
@@ -228,22 +210,22 @@ export default function DashboardPage() {
         <div className="px-12 pb-8 max-w-screen-2xl grid grid-cols-12 gap-6">
           <div className="col-span-8 space-y-6">
             <section className="grid grid-cols-4 gap-4">
-              <div className="bg-[#131313] p-6 rounded-xl space-y-2 border-none">
+              <div className="bg-[#131313] p-6 rounded-xl space-y-2 border-2 border-[#2a2a2a]">
                 <p className="text-[#acabaa] text-xs font-medium uppercase tracking-widest">Sessions Today</p>
                 <p className="text-3xl font-['Manrope'] font-bold text-[#cdc0ec]">{stats.sessionsToday}</p>
               </div>
-              <div className="bg-[#131313] p-6 rounded-xl space-y-2 border-none">
+              <div className="bg-[#131313] p-6 rounded-xl space-y-2 border-2 border-[#2a2a2a]">
                 <p className="text-[#acabaa] text-xs font-medium uppercase tracking-widest">Total Time</p>
                 <p className="text-3xl font-['Manrope'] font-bold text-[#cdc0ec]">
                   {stats.totalTime}
                   <span className="text-sm font-normal ml-1 text-[#acabaa]">m</span>
                 </p>
               </div>
-              <div className="bg-[#131313] p-6 rounded-xl space-y-2 border-none">
+              <div className="bg-[#131313] p-6 rounded-xl space-y-2 border-2 border-[#2a2a2a]">
                 <p className="text-[#acabaa] text-xs font-medium uppercase tracking-widest">Completed</p>
                 <p className="text-3xl font-['Manrope'] font-bold text-[#8fa1a1]">{stats.completed}</p>
               </div>
-              <div className="bg-[#131313] p-6 rounded-xl space-y-2 border-none">
+              <div className="bg-[#131313] p-6 rounded-xl space-y-2 border-2 border-[#2a2a2a]">
                 <p className="text-[#acabaa] text-xs font-medium uppercase tracking-widest">Day Streak</p>
                 <p className="text-3xl font-['Manrope'] font-bold text-[#edbbb1]">{stats.streak}</p>
               </div>
@@ -253,7 +235,7 @@ export default function DashboardPage() {
               <h3 className="text-xl font-['Manrope'] font-semibold text-[#e7e5e5]">Today's Study Plan</h3>
               {error && <p className="text-sm text-[#ec7c8a]">{error}</p>}
               {todaySessions.length === 0 ? (
-                <div className="bg-[#131313] rounded-xl p-8 text-center">
+                <div className="bg-[#131313] rounded-xl p-8 text-center border-2 border-[#2a2a2a]">
                   <p className="text-[#acabaa]">No sessions scheduled for today.</p>
                   <button
                     onClick={() => navigate("/planner/new")}
@@ -265,8 +247,6 @@ export default function DashboardPage() {
               ) : (
                 <div className="space-y-4">
                   {todaySessions.map((session, index) => {
-                    const difficulty = getDifficultyBadge();
-                    const diffColor = getDifficultyColor(difficulty);
                     const isActive = index === 0;
 
                     return (
@@ -274,8 +254,8 @@ export default function DashboardPage() {
                         key={`${session.courseId}-${session.task.id}`}
                         className={`group ${
                           isActive
-                            ? "bg-[#1f2020] shadow-xl shadow-black/20"
-                            : "bg-[#131313] hover:bg-[#191a1a]"
+                            ? "bg-[#1f2020] shadow-xl shadow-black/20 border-2 border-[#3a3a3a]"
+                            : "bg-[#131313] hover:bg-[#191a1a] border-2 border-[#2a2a2a]"
                         } rounded-xl p-6 transition-all duration-500 flex items-center justify-between`}
                       >
                         <div className="flex items-center gap-6">
@@ -299,11 +279,6 @@ export default function DashboardPage() {
                                 }`}
                               >
                                 {session.courseName}
-                              </span>
-                              <span
-                                className={`text-[10px] text-[#${diffColor}] px-2 py-0.5 rounded-full border border-[#${diffColor}]/20`}
-                              >
-                                {difficulty}
                               </span>
                             </div>
                             <h4 className="text-lg font-medium text-[#e7e5e5]">{session.task.title}</h4>
@@ -345,7 +320,7 @@ export default function DashboardPage() {
           </div>
 
           <div className="col-span-4 space-y-6">
-            <div className="bg-[#4b4166]/40 backdrop-blur-md p-6 rounded-xl border-none shadow-lg text-[#dbcefb] relative overflow-hidden">
+            <div className="bg-[#4b4166]/40 backdrop-blur-md p-6 rounded-xl border-2 border-[#5a4d7a] shadow-lg text-[#dbcefb] relative overflow-hidden">
               <p className="text-sm font-medium leading-relaxed">
                 "Focus is the art of saying no to the noise. You're {stats.completed > 0 ? "making progress" : "ready to start"}, {userName}."
               </p>
@@ -356,7 +331,7 @@ export default function DashboardPage() {
               </div>
             </div>
 
-            <div className="bg-[#131313] rounded-xl p-6 border-none">
+            <div className="bg-[#131313] rounded-xl p-6 border-2 border-[#2a2a2a]">
               <h4 className="text-sm font-bold uppercase tracking-[0.2em] text-[#acabaa] mb-6">Upcoming Schedule</h4>
               {upcomingSessions.length === 0 ? (
                 <p className="text-sm text-[#acabaa]">No upcoming sessions</p>
