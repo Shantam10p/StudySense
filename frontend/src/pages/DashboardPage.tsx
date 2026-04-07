@@ -185,23 +185,17 @@ export default function DashboardPage() {
                 </span>
               </h2>
             </div>
-            <div className="flex items-center gap-6 mb-4">
+            <div className="flex items-center gap-4">
               <div className="flex items-center bg-[#1f2020] rounded-full px-4 py-2 text-[#acabaa]">
                 <span className="material-symbols-outlined mr-2 text-sm">search</span>
                 <input
                   className="bg-transparent border-none outline-none text-sm w-48 focus:ring-0 placeholder:text-[#767575]"
-                  placeholder="Search knowledge..."
+                  placeholder="Search session..."
                   type="text"
                 />
               </div>
-              <span className="material-symbols-outlined text-[#acabaa] hover:text-[#cdc0ec] cursor-pointer transition-colors">
-                notifications
-              </span>
-              <span className="material-symbols-outlined text-[#acabaa] hover:text-[#cdc0ec] cursor-pointer transition-colors">
-                settings
-              </span>
-              <div className="w-10 h-10 rounded-full bg-[#252626] overflow-hidden flex items-center justify-center">
-                <span className="material-symbols-outlined text-[#cdc0ec]">account_circle</span>
+              <div className="w-12 h-12 rounded-full bg-[#252626] overflow-hidden flex items-center justify-center cursor-pointer hover:bg-[#2d2e2e] transition-colors">
+                <span className="material-symbols-outlined text-[#cdc0ec] text-2xl">account_circle</span>
               </div>
             </div>
           </div>
