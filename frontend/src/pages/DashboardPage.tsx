@@ -307,7 +307,7 @@ export default function DashboardPage() {
                 </span>
               </h2>
             </div>
-            <div className="flex items-center gap-4">
+            <div className="relative -top-4 flex items-center gap-4">
               <div className="flex items-center bg-[#1f2020] rounded-full px-4 py-2 text-[#acabaa]">
                 <span className="material-symbols-outlined mr-2 text-sm">search</span>
                 <input
