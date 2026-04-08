@@ -19,6 +19,7 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [userName, setUserName] = useState("Student");
+  const [searchQuery, setSearchQuery] = useState("");
   const [sessionView, setSessionView] = useState<"today" | "previous" | "upcoming">("today");
   const [isSessionMenuOpen, setIsSessionMenuOpen] = useState(false);
 
@@ -229,6 +230,20 @@ export default function DashboardPage() {
     ? previousSessions 
     : upcomingSessions;
 
+  const normalizedSearchQuery = searchQuery.trim().toLowerCase();
+
+  const filteredSessions = displayedSessions.filter((session) => {
+    if (!normalizedSearchQuery) {
+      return true;
+    }
+
+    const searchableText = [session.task.title, session.courseName, session.task.task_type]
+      .join(" ")
+      .toLowerCase();
+
+    return searchableText.includes(normalizedSearchQuery);
+  });
+
   const sessionViewLabel =
     sessionView === "today" ? "Today" : sessionView === "previous" ? "Previous" : "Upcoming";
 
@@ -297,6 +312,8 @@ export default function DashboardPage() {
                 <span className="material-symbols-outlined mr-2 text-sm">search</span>
                 <input
                   className="bg-transparent border-none outline-none text-sm w-48 focus:ring-0 placeholder:text-[#767575]"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search session..."
                   type="text"
                 />
@@ -379,12 +396,16 @@ export default function DashboardPage() {
                 </div>
               </div>
               {error && <p className="text-sm text-[#ec7c8a]">{error}</p>}
-              {displayedSessions.length === 0 ? (
+              {filteredSessions.length === 0 ? (
                 <div className="bg-[#131313] rounded-xl p-8 text-center border-2 border-[#2a2a2a]">
                   <p className="text-[#acabaa]">
-                    {sessionView === "today" && "No sessions scheduled for today."}
-                    {sessionView === "previous" && "No previous sessions found."}
-                    {sessionView === "upcoming" && "No upcoming sessions found."}
+                    {normalizedSearchQuery
+                      ? `No sessions found for "${searchQuery.trim()}".`
+                      : sessionView === "today"
+                      ? "No sessions scheduled for today."
+                      : sessionView === "previous"
+                      ? "No previous sessions found."
+                      : "No upcoming sessions found."}
                   </p>
                   <button
                     onClick={() => navigate("/planner/new")}
@@ -395,7 +416,7 @@ export default function DashboardPage() {
                 </div>
               ) : (
                 <div className="space-y-4">
-                  {displayedSessions.map((session, index) => {
+                  {filteredSessions.map((session, index) => {
                     const isActive = index === 0;
                     const hasStartedSession = hasSavedSessionState(session);
                     const sessionDate = getSessionDate(session);
