@@ -67,11 +67,15 @@ export default function StudyModePage() {
   const state = location.state as StudyModeLocationState | null;
 
   const session = state?.task;
+  const timerStorageKey = state?.courseId && session?.id
+    ? `study_timer:${state.courseId}:${state.dayIndex}:${session.id}`
+    : null;
   const topic = useMemo(() => deriveTopicFromTitle(session?.title ?? "this topic"), [session?.title]);
   const materialSections = useMemo(() => buildMockMaterials(topic), [topic]);
   const [activeTab, setActiveTab] = useState(materialSections[0]?.label ?? "Concepts");
   const [isRunning, setIsRunning] = useState(true);
   const [timeLeft, setTimeLeft] = useState(session ? session.duration_minutes * 60 : 0);
+  const [timerReady, setTimerReady] = useState(false);
 
   useEffect(() => {
     if (!session) {
@@ -80,8 +84,56 @@ export default function StudyModePage() {
   }, [navigate, session]);
 
   useEffect(() => {
-    setTimeLeft(session ? session.duration_minutes * 60 : 0);
-  }, [session]);
+    if (!session) {
+      setTimeLeft(0);
+      setIsRunning(true);
+      setTimerReady(true);
+      return;
+    }
+
+    const defaultTimeLeft = session.duration_minutes * 60;
+
+    if (!timerStorageKey) {
+      setTimeLeft(defaultTimeLeft);
+      setIsRunning(true);
+      setTimerReady(true);
+      return;
+    }
+
+    try {
+      const storedValue = window.localStorage.getItem(timerStorageKey);
+
+      if (!storedValue) {
+        setTimeLeft(defaultTimeLeft);
+        setIsRunning(true);
+        setTimerReady(true);
+        return;
+      }
+
+      const parsed = JSON.parse(storedValue) as { timeLeft?: number; isRunning?: boolean };
+      setTimeLeft(typeof parsed.timeLeft === "number" ? parsed.timeLeft : defaultTimeLeft);
+      setIsRunning(typeof parsed.isRunning === "boolean" ? parsed.isRunning : true);
+    } catch {
+      setTimeLeft(defaultTimeLeft);
+      setIsRunning(true);
+    }
+
+    setTimerReady(true);
+  }, [session, timerStorageKey]);
+
+  useEffect(() => {
+    if (!session || !timerStorageKey || !timerReady) {
+      return;
+    }
+
+    window.localStorage.setItem(
+      timerStorageKey,
+      JSON.stringify({
+        timeLeft,
+        isRunning,
+      })
+    );
+  }, [isRunning, session, timeLeft, timerReady, timerStorageKey]);
 
   useEffect(() => {
     if (!isRunning || timeLeft <= 0) {
@@ -165,7 +217,10 @@ export default function StudyModePage() {
                     {isRunning ? "Pause" : "Resume"}
                   </button>
                   <button
-                    onClick={() => setTimeLeft(session.duration_minutes * 60)}
+                    onClick={() => {
+                      setTimeLeft(session.duration_minutes * 60);
+                      setIsRunning(true);
+                    }}
                     className="inline-flex items-center gap-2 rounded-lg border-2 border-[#2a2a2a] bg-[#131313] px-6 py-3 text-sm font-semibold text-[#e7e5e5] transition-all hover:border-[#8fa1a1]/40 hover:bg-[#1a1a1a]"
                   >
                     <span className="material-symbols-outlined text-lg">replay</span>

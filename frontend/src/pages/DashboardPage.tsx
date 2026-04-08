@@ -138,6 +138,15 @@ export default function DashboardPage() {
     return icons[index % icons.length];
   };
 
+  const hasSavedSessionState = (session: SessionWithCourse) => {
+    try {
+      const storageKey = `study_timer:${session.courseId}:${session.dayIndex}:${session.task.id}`;
+      return window.localStorage.getItem(storageKey) !== null;
+    } catch {
+      return false;
+    }
+  };
+
   const stats = calculateStats();
   const todaySessions = getTodaySessions();
   const upcomingSessions = getUpcomingSessions();
@@ -242,6 +251,7 @@ export default function DashboardPage() {
                 <div className="space-y-4">
                   {todaySessions.map((session, index) => {
                     const isActive = index === 0;
+                    const hasStartedSession = hasSavedSessionState(session);
 
                     return (
                       <div
@@ -295,7 +305,7 @@ export default function DashboardPage() {
                             }
                             className="bg-[#cdc0ec] text-[#443b5f] px-6 py-2 rounded-lg font-semibold text-sm hover:brightness-110 transition-all active:scale-95"
                           >
-                            Start Session
+                            {hasStartedSession ? "Continue Session" : "Start Session"}
                           </button>
                         ) : (
                           <button
