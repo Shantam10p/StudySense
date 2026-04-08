@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { fetchCourses, fetchCoursePlan } from "../api";
 import { Sidebar } from "../components/Sidebar";
+import { Loader } from "../components/Loader";
 import type { Course } from "../types/course";
 import type { PlannerGenerateResponse } from "../types/planner";
 
@@ -66,7 +67,7 @@ export default function ProgressPage() {
       <div className="flex min-h-screen bg-[#0e0e0e]">
         <Sidebar />
         <main className="flex-1 ml-64 flex items-center justify-center">
-          <p className="text-[#acabaa]">Loading progress...</p>
+          <Loader message="Loading progress..." size="lg" />
         </main>
       </div>
     );

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { fetchCourses, fetchCoursePlan } from "../api";
 import { Sidebar } from "../components/Sidebar";
+import { Loader } from "../components/Loader";
 import type { Course } from "../types/course";
 import type { PlannerGenerateResponse, PlannerStudyTask } from "../types/planner";
 
@@ -286,7 +287,7 @@ export default function DashboardPage() {
       <div className="flex min-h-screen bg-[#0e0e0e]">
         <Sidebar />
         <main className="flex-1 ml-64 flex items-center justify-center">
-          <p className="text-[#acabaa]">Loading dashboard...</p>
+          <Loader message="Loading dashboard..." size="lg" />
         </main>
       </div>
     );

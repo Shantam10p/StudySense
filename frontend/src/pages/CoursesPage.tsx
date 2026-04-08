@@ -6,6 +6,7 @@ import type { Course } from "../types/course";
 
 import { deleteCourse, fetchCourses } from "../api";
 import { Sidebar } from "../components/Sidebar";
+import { Loader } from "../components/Loader";
 import { CourseCard } from "../components/CourseCard";
 import { ConfirmModal } from "../components/ConfirmModal";
 
@@ -58,7 +59,11 @@ export default function CoursesPage() {
             <p className="mb-4 text-sm text-[#ec7c8a]">{deleteError}</p>
           ) : null}
 
-          {loading ? <p className="text-[#acabaa]">Loading courses...</p> : null}
+          {loading ? (
+            <div className="fixed inset-0 ml-64 flex items-center justify-center">
+              <Loader message="Loading courses..." size="lg" />
+            </div>
+          ) : null}
 
           {!loading && error ? <p className="text-sm text-[#ec7c8a]">{error}</p> : null}
 
