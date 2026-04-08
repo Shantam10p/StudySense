@@ -161,11 +161,19 @@ export default function DashboardPage() {
 
   const calculateStats = () => {
     const todaySessions = getTodaySessions();
+    const previousSessions = getPreviousSessions();
+    const upcomingSessions = getUpcomingSessions();
     const totalTime = todaySessions.reduce((sum, s) => sum + s.task.duration_minutes, 0);
+    const previousTotalTime = previousSessions.reduce((sum, s) => sum + s.task.duration_minutes, 0);
+    const upcomingTotalTime = upcomingSessions.reduce((sum, s) => sum + s.task.duration_minutes, 0);
 
     return {
       sessionsToday: todaySessions.length,
       totalTime,
+      previousSessions: previousSessions.length,
+      previousTotalTime,
+      upcomingSessions: upcomingSessions.length,
+      upcomingTotalTime,
       completed: 0,
       streak: 12,
     };
@@ -223,6 +231,23 @@ export default function DashboardPage() {
 
   const sessionViewLabel =
     sessionView === "today" ? "Today" : sessionView === "previous" ? "Previous" : "Upcoming";
+
+  const sessionCountLabel =
+    sessionView === "today" ? "Sessions Today" : sessionView === "previous" ? "Previous Sessions" : "Upcoming Sessions";
+
+  const sessionCountValue =
+    sessionView === "today"
+      ? stats.sessionsToday
+      : sessionView === "previous"
+      ? stats.previousSessions
+      : stats.upcomingSessions;
+
+  const sessionTimeValue =
+    sessionView === "today"
+      ? stats.totalTime
+      : sessionView === "previous"
+      ? stats.previousTotalTime
+      : stats.upcomingTotalTime;
 
   const getCurrentDate = () => {
     const options: Intl.DateTimeFormatOptions = {
@@ -287,13 +312,13 @@ export default function DashboardPage() {
           <div className="col-span-8 space-y-6">
             <section className="grid grid-cols-4 gap-4">
               <div className="bg-[#131313] p-6 rounded-xl space-y-2 border-2 border-[#2a2a2a]">
-                <p className="text-[#acabaa] text-xs font-medium uppercase tracking-widest">Sessions Today</p>
-                <p className="text-3xl font-['Manrope'] font-bold text-[#cdc0ec]">{stats.sessionsToday}</p>
+                <p className="text-[#acabaa] text-xs font-medium uppercase tracking-widest">{sessionCountLabel}</p>
+                <p className="text-3xl font-['Manrope'] font-bold text-[#cdc0ec]">{sessionCountValue}</p>
               </div>
               <div className="bg-[#131313] p-6 rounded-xl space-y-2 border-2 border-[#2a2a2a]">
                 <p className="text-[#acabaa] text-xs font-medium uppercase tracking-widest">Total Time</p>
                 <p className="text-3xl font-['Manrope'] font-bold text-[#cdc0ec]">
-                  {stats.totalTime}
+                  {sessionTimeValue}
                   <span className="text-sm font-normal ml-1 text-[#acabaa]">m</span>
                 </p>
               </div>
