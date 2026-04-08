@@ -256,11 +256,7 @@ export default function DashboardPage() {
                     return (
                       <div
                         key={`${session.courseId}-${session.task.id}`}
-                        className={`group ${
-                          isActive
-                            ? "bg-[#1f2020] shadow-xl shadow-black/20 border-2 border-[#3a3a3a]"
-                            : "bg-[#131313] hover:bg-[#191a1a] border-2 border-[#2a2a2a]"
-                        } rounded-xl p-6 transition-all duration-500 flex items-center justify-between`}
+                        className="group bg-[#1f2020] shadow-xl shadow-black/20 border-2 border-[#3a3a3a] rounded-xl p-6 transition-all duration-500 flex items-center justify-between"
                       >
                         <div className="flex items-center gap-6">
                           <div
@@ -291,30 +287,21 @@ export default function DashboardPage() {
                             </p>
                           </div>
                         </div>
-                        {isActive ? (
-                          <button
-                            onClick={() =>
-                              navigate("/study-mode", {
-                                state: {
-                                  courseId: session.courseId,
-                                  courseName: session.courseName,
-                                  task: session.task,
-                                  dayIndex: session.dayIndex,
-                                },
-                              })
-                            }
-                            className="bg-[#cdc0ec] text-[#443b5f] px-6 py-2 rounded-lg font-semibold text-sm hover:brightness-110 transition-all active:scale-95"
-                          >
-                            {hasStartedSession ? "Continue Session" : "Start Session"}
-                          </button>
-                        ) : (
-                          <button
-                            onClick={() => navigate(`/planner/${session.courseId}`)}
-                            className="text-[#cdc0ec] hover:bg-[#0e0e0e] px-6 py-2 rounded-lg font-semibold text-sm transition-all"
-                          >
-                            View Plan
-                          </button>
-                        )}
+                        <button
+                          onClick={() =>
+                            navigate("/study-mode", {
+                              state: {
+                                courseId: session.courseId,
+                                courseName: session.courseName,
+                                task: session.task,
+                                dayIndex: session.dayIndex,
+                              },
+                            })
+                          }
+                          className="bg-[#cdc0ec] text-[#443b5f] px-6 py-2 rounded-lg font-semibold text-sm hover:brightness-110 transition-all active:scale-95"
+                        >
+                          {hasStartedSession ? "Continue Session" : "Start Session"}
+                        </button>
                       </div>
                     );
                   })}
