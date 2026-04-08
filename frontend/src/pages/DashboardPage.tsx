@@ -19,6 +19,8 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [userName, setUserName] = useState("Student");
+  const [sessionView, setSessionView] = useState<"today" | "previous" | "upcoming">("today");
+  const [isSessionMenuOpen, setIsSessionMenuOpen] = useState(false);
 
   useEffect(() => {
     const userStr = localStorage.getItem("auth_user");
@@ -85,6 +87,43 @@ export default function DashboardPage() {
     return sessions.sort((a, b) => a.task.position - b.task.position);
   };
 
+  const getPreviousSessions = (): SessionWithCourse[] => {
+    const sessions: SessionWithCourse[] = [];
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    plans.forEach((plan, courseId) => {
+      const course = courses.find((c) => c.id === courseId);
+      if (!course) return;
+
+      plan.daily_plans.forEach((dailyPlan, index) => {
+        const planDate = new Date(dailyPlan.day);
+        planDate.setHours(0, 0, 0, 0);
+
+        if (planDate < today) {
+          dailyPlan.tasks.forEach((task) => {
+            sessions.push({
+              task,
+              courseName: course.course_name,
+              courseId: course.id,
+              dayIndex: index,
+            });
+          });
+        }
+      });
+    });
+
+    return sessions
+    
+      .sort((a, b) => {
+        const dateA = plans.get(a.courseId)?.daily_plans[a.dayIndex]?.day || "";
+        const dateB = plans.get(b.courseId)?.daily_plans[b.dayIndex]?.day || "";
+        return dateB.localeCompare(dateA);
+      })
+      .slice(0, 10);
+  };
+
+  
   const getUpcomingSessions = (): SessionWithCourse[] => {
     const sessions: SessionWithCourse[] = [];
     const today = new Date();
@@ -99,7 +138,7 @@ export default function DashboardPage() {
         planDate.setHours(0, 0, 0, 0);
 
         if (planDate > today) {
-          dailyPlan.tasks.slice(0, 1).forEach((task) => {
+          dailyPlan.tasks.forEach((task) => {
             sessions.push({
               task,
               courseName: course.course_name,
@@ -117,7 +156,7 @@ export default function DashboardPage() {
         const dateB = plans.get(b.courseId)?.daily_plans[b.dayIndex]?.day || "";
         return dateA.localeCompare(dateB);
       })
-      .slice(0, 3);
+      .slice(0, 10);
   };
 
   const calculateStats = () => {
@@ -138,6 +177,30 @@ export default function DashboardPage() {
     return icons[index % icons.length];
   };
 
+  const getSessionDate = (session: SessionWithCourse) => {
+    const plan = plans.get(session.courseId);
+    if (!plan) return "";
+    const dayStr = plan.daily_plans[session.dayIndex]?.day;
+    if (!dayStr) return "";
+    
+    const date = new Date(dayStr);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const sessionDate = new Date(date);
+    sessionDate.setHours(0, 0, 0, 0);
+    
+    const diffTime = sessionDate.getTime() - today.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    if (diffDays === 0) return "Today";
+    if (diffDays === 1) return "Tomorrow";
+    if (diffDays === -1) return "Yesterday";
+    if (diffDays > 0 && diffDays <= 7) return `In ${diffDays} days`;
+    if (diffDays < 0 && diffDays >= -7) return `${Math.abs(diffDays)} days ago`;
+    
+    return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+  };
+
   const hasSavedSessionState = (session: SessionWithCourse) => {
     try {
       const storageKey = `study_timer:${session.courseId}:${session.dayIndex}:${session.task.id}`;
@@ -149,7 +212,17 @@ export default function DashboardPage() {
 
   const stats = calculateStats();
   const todaySessions = getTodaySessions();
+  const previousSessions = getPreviousSessions();
   const upcomingSessions = getUpcomingSessions();
+
+  const displayedSessions = sessionView === "today" 
+    ? todaySessions 
+    : sessionView === "previous" 
+    ? previousSessions 
+    : upcomingSessions;
+
+  const sessionViewLabel =
+    sessionView === "today" ? "Today" : sessionView === "previous" ? "Previous" : "Upcoming";
 
   const getCurrentDate = () => {
     const options: Intl.DateTimeFormatOptions = {
@@ -235,11 +308,59 @@ export default function DashboardPage() {
             </section>
 
             <section className="space-y-4">
-              <h3 className="text-xl font-['Manrope'] font-semibold text-[#e7e5e5]">Today's Study Plan</h3>
+              <div className="flex items-center justify-between">
+                <h3 className="text-xl font-['Manrope'] font-semibold text-[#e7e5e5]">Study Sessions</h3>
+                <div className="relative">
+                  <button
+                    type="button"
+                    onClick={() => setIsSessionMenuOpen((current) => !current)}
+                    className="min-w-[152px] bg-[#131313] border-2 border-[#2a2a2a] text-[#e7e5e5] pl-4 pr-10 py-2.5 rounded-lg text-sm font-medium text-left transition-colors hover:border-[#cdc0ec]/40"
+                  >
+                    {sessionViewLabel}
+                  </button>
+                  <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-[#acabaa] pointer-events-none text-lg">
+                    {isSessionMenuOpen ? "expand_less" : "expand_more"}
+                  </span>
+
+                  {isSessionMenuOpen ? (
+                    <div className="absolute right-0 top-[calc(100%+8px)] z-20 min-w-[152px] overflow-hidden rounded-lg border-2 border-[#2a2a2a] bg-[#131313] shadow-xl shadow-black/30">
+                      {[
+                        { value: "today", label: "Today" },
+                        { value: "previous", label: "Previous" },
+                        { value: "upcoming", label: "Upcoming" },
+                      ].map((option) => {
+                        const isSelected = sessionView === option.value;
+
+                        return (
+                          <button
+                            key={option.value}
+                            type="button"
+                            onClick={() => {
+                              setSessionView(option.value as "today" | "previous" | "upcoming");
+                              setIsSessionMenuOpen(false);
+                            }}
+                            className={`block w-full px-4 py-3 text-left text-sm transition-colors ${
+                              isSelected
+                                ? "bg-[#cdc0ec] text-[#443b5f]"
+                                : "text-[#e7e5e5] hover:bg-[#1c1c1c]"
+                            }`}
+                          >
+                            {option.label}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  ) : null}
+                </div>
+              </div>
               {error && <p className="text-sm text-[#ec7c8a]">{error}</p>}
-              {todaySessions.length === 0 ? (
+              {displayedSessions.length === 0 ? (
                 <div className="bg-[#131313] rounded-xl p-8 text-center border-2 border-[#2a2a2a]">
-                  <p className="text-[#acabaa]">No sessions scheduled for today.</p>
+                  <p className="text-[#acabaa]">
+                    {sessionView === "today" && "No sessions scheduled for today."}
+                    {sessionView === "previous" && "No previous sessions found."}
+                    {sessionView === "upcoming" && "No upcoming sessions found."}
+                  </p>
                   <button
                     onClick={() => navigate("/planner/new")}
                     className="mt-4 px-6 py-2 bg-gradient-to-br from-[#cdc0ec] to-[#bfb2de] text-[#443b5f] font-semibold rounded-lg transition-all hover:scale-[1.02]"
@@ -249,9 +370,11 @@ export default function DashboardPage() {
                 </div>
               ) : (
                 <div className="space-y-4">
-                  {todaySessions.map((session, index) => {
+                  {displayedSessions.map((session, index) => {
                     const isActive = index === 0;
                     const hasStartedSession = hasSavedSessionState(session);
+                    const sessionDate = getSessionDate(session);
+                    const showDate = sessionView !== "today";
 
                     return (
                       <div
@@ -284,6 +407,12 @@ export default function DashboardPage() {
                             <h4 className="text-lg font-medium text-[#e7e5e5]">{session.task.title}</h4>
                             <p className="text-sm text-[#acabaa]">
                               {session.task.task_type} • {session.task.duration_minutes}m
+                              {showDate && sessionDate && (
+                                <>
+                                  {" • "}
+                                  <span className="text-[#8fa1a1] font-medium">{sessionDate}</span>
+                                </>
+                              )}
                             </p>
                           </div>
                         </div>
