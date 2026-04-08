@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
 import { signupUser } from "../api";
-import senseiLogo from "../assets/sensei.png";
+import senseiLogo from "../assets/sensei_face.png";
 
 export default function SignupPage() {
   const navigate = useNavigate();
@@ -37,8 +37,8 @@ export default function SignupPage() {
 
       <div className="w-full max-w-md relative z-10">
         <div className="text-center mb-8">
-          <div className="inline-flex items-center gap-4 mb-4">
-            <img src={senseiLogo} alt="Sensei" className="w-20 h-20" />
+          <div className="flex items-center justify-center gap-3 mb-4">
+            <img src={senseiLogo} alt="Sensei" className="w-28 h-28" />
             <h1 className="text-3xl font-['Manrope'] font-bold text-[#cdc0ec]">Sensei</h1>
           </div>
           <p className="text-[#acabaa] text-sm">Start your personalized learning journey</p>

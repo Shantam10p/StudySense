@@ -1,5 +1,5 @@
 import { useNavigate, useLocation } from "react-router-dom";
-import senseiLogo from "../assets/sensei.png";
+import senseiLogo from "../assets/sensei_face.png";
 
 export function Sidebar() {
   const navigate = useNavigate();
@@ -14,8 +14,8 @@ export function Sidebar() {
 
   return (
     <aside className="fixed left-0 top-0 h-full flex flex-col py-6 bg-[#131313] w-64 z-50">
-      <div className="px-6 mb-10 flex items-center gap-3">
-        <img src={senseiLogo} alt="Sensei" className="w-14 h-14" />
+      <div className="px-6 mb-10 flex items-center gap-2">
+        <img src={senseiLogo} alt="Sensei" className="w-16 h-16" />
         <div>
           <h1 className="text-2xl font-bold tracking-tighter text-[#cdc0ec]">Sensei</h1>
           <p className="text-[10px] uppercase tracking-[0.2em] text-[#acabaa] opacity-60">Your AI Study Guide</p>
