@@ -128,55 +128,55 @@ export default function PlannerViewPage() {
           )}
 
           {plan && (
-            <div className="bg-[#131313] border border-[#484848]/20 rounded-xl p-6">
-              <div className="flex items-center justify-between mb-6">
+            <div className="space-y-3">
+              <div className="flex items-center justify-between mb-2">
                 <h3 className="text-xl font-['Manrope'] font-semibold text-[#e7e5e5]">Daily Study Schedule</h3>
-                <div className="flex items-center gap-2 text-sm text-[#acabaa]">
-                  <span className="material-symbols-outlined text-base">calendar_month</span>
-                  <span>{plan.daily_plans.length} days</span>
-                </div>
+                <span className="text-xs text-[#767575] tracking-wide uppercase">{plan.daily_plans.length} days</span>
               </div>
 
-              <div className="space-y-4">
-                {plan.daily_plans.map((dailyPlan, index) => (
-                  <div
-                    key={dailyPlan.id}
-                    className="bg-[#1f2020] border border-[#484848]/20 rounded-lg p-5 hover:border-[#cdc0ec]/30 transition-all"
-                  >
-                    <div className="flex items-center gap-3 mb-4">
-                      <div className="w-8 h-8 rounded-lg bg-[#4b4166]/40 flex items-center justify-center">
-                        <span className="text-sm font-bold text-[#cdc0ec]">{index + 1}</span>
+              {plan.daily_plans.map((dailyPlan, index) => {
+                const totalMinutes = dailyPlan.tasks.reduce((sum, t) => sum + t.duration_minutes, 0);
+                const taskTypeColors: Record<string, string> = {
+                  study: "bg-[#4b4166]/30 text-[#cdc0ec]",
+                  review: "bg-[#2d4a4a]/30 text-[#8fa1a1]",
+                  practice: "bg-[#4a3530]/30 text-[#edbbb1]",
+                  quiz: "bg-[#3a4130]/30 text-[#a8c97a]",
+                };
+
+                return (
+                  <div key={dailyPlan.id} className="group">
+                    <div className="flex items-center gap-3 py-2">
+                      <div className="w-7 h-7 rounded-full bg-[#4b4166]/40 flex items-center justify-center shrink-0">
+                        <span className="text-[11px] font-bold text-[#cdc0ec]">{index + 1}</span>
                       </div>
-                      <div>
-                        <p className="text-sm font-medium text-[#e7e5e5]">{dailyPlan.day}</p>
-                        <p className="text-xs text-[#acabaa]">{dailyPlan.tasks.length} tasks</p>
-                      </div>
+                      <p className="text-sm font-medium text-[#e7e5e5]">{dailyPlan.day}</p>
+                      <div className="flex-1 h-px bg-[#484848]/20"></div>
+                      <span className="text-[11px] text-[#767575]">{dailyPlan.tasks.length} tasks • {totalMinutes}m</span>
                     </div>
-                    <div className="space-y-3 pl-11">
-                      {dailyPlan.tasks.map((task) => (
-                        <div
-                          key={task.id}
-                          className="flex items-center justify-between gap-3 p-3 bg-[#0e0e0e] rounded-lg border border-[#484848]/10"
-                        >
-                          <div className="flex items-center gap-3 flex-1">
-                            <span className="material-symbols-outlined text-[#8fa1a1] text-base">task_alt</span>
-                            <span className="text-sm text-[#e7e5e5]">{task.title}</span>
-                          </div>
-                          <div className="flex items-center gap-4 text-xs text-[#acabaa]">
-                            <span className="flex items-center gap-1">
-                              <span className="material-symbols-outlined text-sm">schedule</span>
-                              {task.duration_minutes}m
-                            </span>
-                            <span className="px-2 py-1 bg-[#4b4166]/20 rounded text-[#cdc0ec]">
+
+                    <div className="ml-3.5 border-l border-[#484848]/20 pl-6 pb-4 space-y-1.5">
+                      {dailyPlan.tasks.map((task) => {
+                        const typeKey = task.task_type.toLowerCase();
+                        const typeColor = taskTypeColors[typeKey] || "bg-[#4b4166]/20 text-[#cdc0ec]";
+
+                        return (
+                          <div
+                            key={task.id}
+                            className="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-[#181818] hover:bg-[#1f2020] border border-transparent hover:border-[#484848]/20 transition-all cursor-default"
+                          >
+                            <div className="w-1 h-4 rounded-full bg-[#cdc0ec]/20 shrink-0"></div>
+                            <span className="text-[13px] text-[#e7e5e5] flex-1 truncate">{task.title}</span>
+                            <span className="text-[11px] text-[#767575] shrink-0">{task.duration_minutes}m</span>
+                            <span className={`text-[10px] font-medium uppercase tracking-wider px-2 py-0.5 rounded-full shrink-0 ${typeColor}`}>
                               {task.task_type}
                             </span>
                           </div>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   </div>
-                ))}
-              </div>
+                );
+              })}
             </div>
           )}
         </div>
