@@ -328,7 +328,7 @@ export default function DashboardPage() {
               </div>
               <div className="bg-[#131313] p-6 rounded-xl space-y-2 border-2 border-[#2a2a2a]">
                 <p className="text-[#acabaa] text-xs font-medium uppercase tracking-widest">Day Streak</p>
-                <p className="text-3xl font-['Manrope'] font-bold text-[#edbbb1]">{stats.streak}</p>
+                <p className="text-3xl font-['Manrope'] font-bold text-[#7fd29a]">{stats.streak}</p>
               </div>
             </section>
 
@@ -465,7 +465,7 @@ export default function DashboardPage() {
           </div>
 
           <div className="col-span-4 space-y-6">
-            <div className="bg-[#4b4166]/40 backdrop-blur-md p-6 rounded-xl border-2 border-[#5a4d7a] shadow-lg text-[#dbcefb] relative overflow-hidden">
+            <div className="bg-[#352d49]/55 backdrop-blur-md p-6 rounded-xl border-2 border-[#47395f] shadow-lg text-[#c9bbeb] relative overflow-hidden">
               <p className="text-sm font-medium leading-relaxed">
                 "Focus is the art of saying no to the noise. You're {stats.completed > 0 ? "making progress" : "ready to start"}, {userName}."
               </p>

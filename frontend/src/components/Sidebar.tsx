@@ -6,6 +6,11 @@ export function Sidebar() {
   const location = useLocation();
 
   const isActive = (path: string) => location.pathname === path;
+  const handleLogout = () => {
+    localStorage.removeItem("auth_token");
+    localStorage.removeItem("auth_user");
+    navigate("/");
+  };
 
   return (
     <aside className="fixed left-0 top-0 h-full flex flex-col py-6 bg-[#131313] w-64 z-50">
@@ -57,11 +62,11 @@ export function Sidebar() {
 
       <div className="px-4 mt-auto">
         <button
-          onClick={() => navigate("/profile")}
-          className="w-full text-left text-[#acabaa] hover:text-[#e7e5e5] px-4 py-3 transition-colors duration-300 flex items-center gap-3 font-medium text-sm tracking-tight hover:bg-[#1f2020] rounded-lg"
+          onClick={handleLogout}
+          className="w-full text-left bg-[#1f2020] border-2 border-[#3a3a3a] text-[#cdc0ec] px-4 py-3 transition-all duration-300 flex items-center gap-3 font-semibold text-sm tracking-tight rounded-lg hover:bg-[#272828] hover:border-[#cdc0ec]/35 hover:text-[#e4daf8] shadow-lg shadow-black/20"
         >
-          <span className="material-symbols-outlined">account_circle</span>
-          User Profile
+          <span className="material-symbols-outlined">logout</span>
+          Logout
         </button>
       </div>
     </aside>
