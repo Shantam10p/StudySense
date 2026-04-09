@@ -165,14 +165,14 @@ export default function StudyModePage() {
 
   return (
     <div className="h-screen overflow-hidden bg-[#0e0e0e] text-[#e7e5e5]">
-      <main className="h-screen overflow-hidden p-6 lg:p-8">
-        <div className="mx-auto flex h-full max-w-[1600px] flex-col gap-6 lg:flex-row">
-          <section className="flex min-h-0 flex-col rounded-2xl border-2 border-[#2a2a2a] bg-[#131313] p-6 shadow-2xl shadow-black/20 lg:p-8 lg:flex-[0_0_60%]">
+      <main className="h-screen overflow-hidden px-6 py-6 lg:px-8 lg:py-8">
+        <div className="mx-auto flex h-full max-w-[1600px] flex-col gap-6 lg:flex-row lg:gap-6">
+          <section className="flex min-h-0 flex-col rounded-2xl border-2 border-[#3a3a3a] bg-[#131313] p-6 shadow-2xl shadow-black/20 lg:p-8 lg:w-[60%]">
             <div className="mb-6 flex shrink-0 flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
               <div className="flex-1 space-y-4">
                 <button
                   onClick={() => navigate("/dashboard")}
-                  className="-mt-2 inline-flex items-center gap-2 rounded-lg border-2 border-[#2a2a2a] px-4 py-2 text-sm text-[#acabaa] transition-colors hover:border-[#cdc0ec]/40 hover:text-[#e7e5e5]"
+                  className="-mt-2 inline-flex items-center gap-2 rounded-lg border-2 border-[#3a3a3a] px-4 py-2 text-sm text-[#acabaa] transition-colors hover:border-[#cdc0ec]/40 hover:text-[#e7e5e5]"
                 >
                   <span className="material-symbols-outlined text-base">arrow_back</span>
                   Back to Dashboard
@@ -187,14 +187,14 @@ export default function StudyModePage() {
                   </p>
                 </div>
               </div>
-              <div className="shrink-0 rounded-xl border-2 border-[#2a2a2a] bg-[#0e0e0e] px-6 py-4">
+              <div className="shrink-0 rounded-xl border-2 border-[#3a3a3a] bg-[#0e0e0e] px-6 py-4">
                 <p className="text-[11px] uppercase tracking-[0.24em] text-[#767575]">Session Length</p>
                 <p className="mt-2 text-lg font-semibold text-[#cdc0ec]">{session.duration_minutes} min</p>
               </div>
             </div>
 
             <div className="flex min-h-0 flex-1 flex-col">
-              <div className="flex min-h-0 flex-1 flex-col items-center justify-center rounded-2xl border-2 border-[#2a2a2a] bg-[#0e0e0e] px-8 py-12 text-center relative overflow-hidden">
+              <div className="flex min-h-0 flex-1 flex-col items-center justify-center rounded-2xl border-2 border-[#3a3a3a] bg-[#0e0e0e] px-8 py-12 text-center relative overflow-hidden">
                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_rgba(205,192,236,0.06),_transparent_70%)] pointer-events-none"></div>
                 <div className="relative z-10 flex flex-col items-center">
                   <p className="mb-6 text-xs uppercase tracking-[0.3em] text-[#8fa1a1] font-medium">Focus Timer</p>
@@ -221,14 +221,14 @@ export default function StudyModePage() {
                       setTimeLeft(session.duration_minutes * 60);
                       setIsRunning(true);
                     }}
-                    className="inline-flex items-center gap-2 rounded-lg border-2 border-[#2a2a2a] bg-[#131313] px-6 py-3 text-sm font-semibold text-[#e7e5e5] transition-all hover:border-[#8fa1a1]/40 hover:bg-[#1a1a1a]"
+                    className="inline-flex items-center gap-2 rounded-lg border-2 border-[#3a3a3a] bg-[#131313] px-6 py-3 text-sm font-semibold text-[#e7e5e5] transition-all hover:border-[#8fa1a1]/40 hover:bg-[#1a1a1a]"
                   >
                     <span className="material-symbols-outlined text-lg">replay</span>
                     Restart
                   </button>
                   <button
                     onClick={() => navigate(`/planner/${state.courseId}`)}
-                    className="inline-flex items-center gap-2 rounded-lg border-2 border-[#2a2a2a] bg-[#131313] px-6 py-3 text-sm font-semibold text-[#e7e5e5] transition-all hover:border-[#8fa1a1]/40 hover:bg-[#1a1a1a]"
+                    className="inline-flex items-center gap-2 rounded-lg border-2 border-[#3a3a3a] bg-[#131313] px-6 py-3 text-sm font-semibold text-[#e7e5e5] transition-all hover:border-[#8fa1a1]/40 hover:bg-[#1a1a1a]"
                   >
                     <span className="material-symbols-outlined text-lg">skip_next</span>
                     Skip
@@ -238,7 +238,7 @@ export default function StudyModePage() {
             </div>
           </section>
 
-          <aside className="flex min-h-0 w-full flex-col rounded-2xl border-2 border-[#2a2a2a] bg-[#131313] lg:flex-[0_0_40%]">
+          <aside className="flex min-h-0 w-full flex-col rounded-2xl border-2 border-[#3a3a3a] bg-[#131313] lg:w-[40%]">
             <div className="shrink-0 border-b border-[#484848]/20 px-6 py-6">
               <div className="flex items-center gap-4">
                 <div className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-2xl bg-[#4b4166]/25">
