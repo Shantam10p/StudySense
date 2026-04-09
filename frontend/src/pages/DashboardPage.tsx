@@ -503,28 +503,46 @@ export default function DashboardPage() {
               {upcomingSessions.length === 0 ? (
                 <p className="text-sm text-[#acabaa]">No upcoming sessions</p>
               ) : (
-                <div className="space-y-6">
-                  {upcomingSessions.map((session, index) => {
-                    const plan = plans.get(session.courseId);
-                    const dayStr = plan?.daily_plans[session.dayIndex]?.day || "";
-                    const date = new Date(dayStr);
-                    const dayLabel =
-                      index === 0 ? "Tomorrow" : date.toLocaleDateString("en-US", { weekday: "long" });
-                    const colors = ["[#cdc0ec]", "[#8fa1a1]", "[#edbbb1]"];
-                    const color = colors[index % colors.length];
+                (() => {
+                  // Group by day to assign consistent colors
+                  const colorOptions = [
+                    { bg: "bg-[#cdc0ec]", text: "text-[#cdc0ec]" },
+                    { bg: "bg-[#8fa1a1]", text: "text-[#8fa1a1]" },
+                    { bg: "bg-[#edbbb1]", text: "text-[#edbbb1]" },
+                  ];
+                  
+                  const uniqueDays = [...new Set(upcomingSessions.map(s => {
+                    const p = plans.get(s.courseId);
+                    return p?.daily_plans[s.dayIndex]?.day || "";
+                  }))];
+                  
+                  const dayColors: Record<string, { bg: string; text: string }> = {};
+                  uniqueDays.forEach((day, idx) => {
+                    dayColors[day] = colorOptions[idx % colorOptions.length];
+                  });
 
-                    return (
-                      <div key={`${session.courseId}-${session.dayIndex}`} className="relative pl-6 border-l border-[#484848]/30">
-                        <div className={`absolute -left-[5px] top-0 w-2.5 h-2.5 rounded-full bg-${color}`}></div>
-                        <p className={`text-[10px] font-bold text-${color} uppercase mb-1`}>{dayLabel}</p>
-                        <h5 className="text-sm font-medium text-[#e7e5e5]">{session.task.title}</h5>
-                        <p className="text-xs text-[#acabaa] mt-1">
-                          {session.courseName} • {session.task.duration_minutes}m
-                        </p>
-                      </div>
-                    );
-                  })}
-                </div>
+                  return (
+                    <div className="space-y-6">
+                      {upcomingSessions.map((session) => {
+                        const plan = plans.get(session.courseId);
+                        const dayStr = plan?.daily_plans[session.dayIndex]?.day || "";
+                        const dayLabel = getSessionDate(session);
+                        const { bg, text } = dayColors[dayStr] || colorOptions[0];
+
+                        return (
+                          <div key={`${session.courseId}-${session.dayIndex}-${session.task.id}`} className="relative pl-6 border-l border-[#484848]/30">
+                            <div className={`absolute -left-[5px] top-0 w-2.5 h-2.5 rounded-full ${bg}`}></div>
+                            <p className={`text-[10px] font-bold ${text} uppercase mb-1`}>{dayLabel}</p>
+                            <h5 className="text-sm font-medium text-[#e7e5e5]">{session.task.title}</h5>
+                            <p className="text-xs text-[#acabaa] mt-1">
+                              {session.courseName} • {session.task.duration_minutes}m
+                            </p>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  );
+                })()
               )}
               <button
                 onClick={() => navigate("/courses")}
