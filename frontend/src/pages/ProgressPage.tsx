@@ -1,21 +1,30 @@
 import { useEffect, useState } from "react";
-import { fetchCourses, fetchCoursePlan } from "../api";
+import { fetchCourses, fetchCoursePlan, fetchDashboardStats } from "../api";
 import { Sidebar } from "../components/Sidebar";
 import { Loader } from "../components/Loader";
 import type { Course } from "../types/course";
+import type { DashboardStats } from "../types/dashboard";
 import type { PlannerGenerateResponse } from "../types/planner";
 
 export default function ProgressPage() {
   const [courses, setCourses] = useState<Course[]>([]);
   const [plans, setPlans] = useState<Map<number, PlannerGenerateResponse>>(new Map());
+  const [dashboardStats, setDashboardStats] = useState<DashboardStats>({
+    sessions_today: 0,
+    total_time_minutes: 0,
+    completed_sessions: 0,
+    day_streak: 0,
+    completed_task_ids: [],
+  });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     async function loadProgressData() {
       try {
-        const coursesData = await fetchCourses();
+        const [coursesData, statsData] = await Promise.all([fetchCourses(), fetchDashboardStats()]);
         setCourses(coursesData);
+        setDashboardStats(statsData);
 
         const plansMap = new Map<number, PlannerGenerateResponse>();
         for (const course of coursesData) {
@@ -42,7 +51,11 @@ export default function ProgressPage() {
     if (!plan) return { completed: 0, total: 0, percentage: 0 };
 
     const totalTasks = plan.daily_plans.reduce((sum, day) => sum + day.tasks.length, 0);
-    const completedTasks = 0;
+    const completedTasks = plan.daily_plans.reduce(
+      (sum, day) =>
+        sum + day.tasks.filter((task) => dashboardStats.completed_task_ids.includes(task.id)).length,
+      0,
+    );
     const percentage = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
 
     return { completed: completedTasks, total: totalTasks, percentage };
@@ -50,12 +63,13 @@ export default function ProgressPage() {
 
   const calculateOverallProgress = () => {
     let totalTasks = 0;
-    let completedTasks = 0;
+    const completedTaskIds = new Set(dashboardStats.completed_task_ids);
 
     plans.forEach((plan) => {
       totalTasks += plan.daily_plans.reduce((sum, day) => sum + day.tasks.length, 0);
     });
 
+    const completedTasks = completedTaskIds.size;
     const percentage = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
     return { completed: completedTasks, total: totalTasks, percentage };
   };
@@ -208,7 +222,7 @@ export default function ProgressPage() {
                 </div>
                 <div>
                   <p className="text-xs text-[#acabaa] uppercase tracking-widest">Study Streak</p>
-                  <p className="text-2xl font-['Manrope'] font-bold text-[#e7e5e5]">12 days</p>
+                  <p className="text-2xl font-['Manrope'] font-bold text-[#e7e5e5]">{dashboardStats.day_streak} days</p>
                 </div>
               </div>
             </div>
