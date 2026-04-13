@@ -122,9 +122,12 @@ export default function PlannerPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-[#e7e5e5] mb-2">
-                  Exam Date
-                </label>
+                <div className="mb-2 flex items-center gap-2">
+                  <label className="block text-sm font-medium text-[#e7e5e5]">
+                    Target Date
+                  </label>
+                  <p className="text-xs text-[#767575]">(When do you want to be ready by?)</p>
+                </div>
                 <input
                   type="date"
                   value={examDate}
