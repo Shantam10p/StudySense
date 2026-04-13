@@ -247,9 +247,12 @@ export default function StudyModePage() {
                   </p>
                 </div>
               </div>
-              <div className="shrink-0 rounded-xl border-2 border-[#3a3a3a] bg-[#0e0e0e] px-6 py-4">
-                <p className="text-[11px] uppercase tracking-[0.24em] text-[#767575]">Session Length</p>
-                <p className="mt-2 text-lg font-semibold text-[#cdc0ec]">{session.duration_minutes} min</p>
+              <div className="shrink-0 flex items-center gap-2 rounded-xl border border-[#3a3a3a] bg-[#0e0e0e] px-4 py-2.5">
+                <span className="material-symbols-outlined text-base text-[#767575]">schedule</span>
+                <div>
+                  <p className="text-[10px] uppercase tracking-widest text-[#767575]">Duration</p>
+                  <p className="text-sm font-semibold text-[#cdc0ec]">{session.duration_minutes} min</p>
+                </div>
               </div>
             </div>
 
