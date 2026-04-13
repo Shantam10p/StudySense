@@ -6,6 +6,10 @@ import type {
   PlannerGenerateRequest,
   PlannerGenerateResponse,
 } from "../types/planner";
+import type {
+  SenseiChatMessage,
+  SenseiContentResponse,
+} from "../types/sensei";
 
 const API_BASE_URL = "http://127.0.0.1:8000/api/v1";
 
@@ -140,6 +144,45 @@ export async function generatePlan(
   if (!response.ok) {
     const text = await response.text();
     throw new Error(text || `Request failed (status ${response.status})`);
+  }
+
+  return response.json();
+}
+
+export async function fetchSenseiContent(payload: {
+  topic: string;
+  course_name: string;
+  course_id: number;
+}): Promise<SenseiContentResponse> {
+  const response = await fetch(`${API_BASE_URL}/chat/content`, {
+    method: "POST",
+    headers: buildAuthHeaders(true),
+    body: JSON.stringify(payload),
+  });
+
+  if (!response.ok) {
+    const text = await response.text();
+    throw new Error(text || `Failed to fetch Sensei content (status ${response.status})`);
+  }
+
+  return response.json();
+}
+
+export async function sendSenseiMessage(payload: {
+  topic: string;
+  course_name: string;
+  history: SenseiChatMessage[];
+  message: string;
+}): Promise<{ reply: string }> {
+  const response = await fetch(`${API_BASE_URL}/chat/message`, {
+    method: "POST",
+    headers: buildAuthHeaders(true),
+    body: JSON.stringify(payload),
+  });
+
+  if (!response.ok) {
+    const text = await response.text();
+    throw new Error(text || `Failed to send message (status ${response.status})`);
   }
 
   return response.json();
