@@ -154,14 +154,18 @@ export default function PlannerPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-[#e7e5e5] mb-2">
-                  Textbook <span className="text-[#767575]">(optional)</span>
-                </label>
+                <div className="mb-2 flex items-center gap-2 pl-2">
+                  <label className="block text-sm font-medium text-[#e7e5e5]">
+                    Relevant Documents
+                  </label>
+                  <p className="text-xs text-[#767575]">(optional - used to personalize your plan)</p>
+                </div>
                 <input
                   value={textbook}
                   onChange={(e) => setTextbook(e.target.value)}
-                  className="w-full bg-[#1f2020] border border-[#484848]/30 rounded-lg px-4 py-3 text-[#e7e5e5] placeholder:text-[#767575] focus:outline-none focus:border-[#cdc0ec] focus:ring-1 focus:ring-[#cdc0ec] transition-colors"
-                  placeholder="e.g. Campbell Biology"
+                  disabled
+                  className="w-full cursor-not-allowed bg-[#181919] border border-[#484848]/20 rounded-lg px-4 py-3 text-[#767575] placeholder:text-[#5f5f5f] transition-colors opacity-70"
+                  placeholder="Document uploads will be available soon"
                 />
               </div>
 
