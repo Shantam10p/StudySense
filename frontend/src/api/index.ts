@@ -1,6 +1,7 @@
 // src/api/index.ts
 import type { AuthResponse, LoginRequest, SignupRequest } from "../types/auth";
 import type { Course } from "../types/course";
+import type { DashboardStats } from "../types/dashboard";
 import type {
   PlannerGenerateRequest,
   PlannerGenerateResponse,
@@ -84,6 +85,33 @@ export async function fetchCoursePlan(
   if (!response.ok) {
     const text = await response.text();
     throw new Error(text || `Failed to fetch course plan (status ${response.status})`);
+  }
+
+  return response.json();
+}
+
+export async function fetchDashboardStats(): Promise<DashboardStats> {
+  const response = await fetch(`${API_BASE_URL}/study-progress/stats`, {
+    headers: buildAuthHeaders(),
+  });
+
+  if (!response.ok) {
+    const text = await response.text();
+    throw new Error(text || `Failed to fetch dashboard stats (status ${response.status})`);
+  }
+
+  return response.json();
+}
+
+export async function completeStudyTask(taskId: number): Promise<{ task_id: number; completed: boolean }> {
+  const response = await fetch(`${API_BASE_URL}/study-progress/tasks/${taskId}/complete`, {
+    method: "POST",
+    headers: buildAuthHeaders(),
+  });
+
+  if (!response.ok) {
+    const text = await response.text();
+    throw new Error(text || `Failed to complete study task (status ${response.status})`);
   }
 
   return response.json();

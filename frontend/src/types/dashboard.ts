@@ -17,6 +17,7 @@ export type DashboardStats = {
   total_time_minutes: number;
   completed_sessions: number;
   day_streak: number;
+  completed_task_ids: number[];
 };
 
 export type UpcomingSession = {

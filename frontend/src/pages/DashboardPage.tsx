@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { fetchCourses, fetchCoursePlan } from "../api";
+import { fetchCourses, fetchCoursePlan, fetchDashboardStats } from "../api";
 import { Sidebar } from "../components/Sidebar";
 import { Loader } from "../components/Loader";
 import type { Course } from "../types/course";
@@ -17,6 +17,7 @@ export default function DashboardPage() {
   const navigate = useNavigate();
   const [courses, setCourses] = useState<Course[]>([]);
   const [plans, setPlans] = useState<Map<number, PlannerGenerateResponse>>(new Map());
+  const [dashboardStats, setDashboardStats] = useState({ completed_sessions: 0, day_streak: 0, completed_task_ids: [] as number[] });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [userName, setUserName] = useState("Student");
@@ -37,8 +38,9 @@ export default function DashboardPage() {
   useEffect(() => {
     async function loadDashboardData() {
       try {
-        const coursesData = await fetchCourses();
+        const [coursesData, statsData] = await Promise.all([fetchCourses(), fetchDashboardStats()]);
         setCourses(coursesData);
+        setDashboardStats(statsData);
 
         const plansMap = new Map<number, PlannerGenerateResponse>();
         for (const course of coursesData) {
@@ -116,7 +118,6 @@ export default function DashboardPage() {
     });
 
     return sessions
-    
       .sort((a, b) => {
         const dateA = plans.get(a.courseId)?.daily_plans[a.dayIndex]?.day || "";
         const dateB = plans.get(b.courseId)?.daily_plans[b.dayIndex]?.day || "";
@@ -125,7 +126,6 @@ export default function DashboardPage() {
       .slice(0, 10);
   };
 
-  
   const getUpcomingSessions = (): SessionWithCourse[] => {
     const sessions: SessionWithCourse[] = [];
     const today = new Date();
@@ -176,11 +176,10 @@ export default function DashboardPage() {
       previousTotalTime,
       upcomingSessions: upcomingSessions.length,
       upcomingTotalTime,
-      completed: 0,
-      streak: 12,
+      completed: dashboardStats.completed_sessions,
+      streak: dashboardStats.day_streak,
     };
   };
-
 
   const getSessionIcon = (index: number) => {
     const icons = ["psychology", "palette", "science", "calculate"];
@@ -192,22 +191,22 @@ export default function DashboardPage() {
     if (!plan) return "";
     const dayStr = plan.daily_plans[session.dayIndex]?.day;
     if (!dayStr) return "";
-    
+
     const date = new Date(dayStr);
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const sessionDate = new Date(date);
     sessionDate.setHours(0, 0, 0, 0);
-    
+
     const diffTime = sessionDate.getTime() - today.getTime();
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    
+
     if (diffDays === 0) return "Today";
     if (diffDays === 1) return "Tomorrow";
     if (diffDays === -1) return "Yesterday";
     if (diffDays > 0 && diffDays <= 7) return `In ${diffDays} days`;
     if (diffDays < 0 && diffDays >= -7) return `${Math.abs(diffDays)} days ago`;
-    
+
     return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
   };
 
@@ -225,10 +224,10 @@ export default function DashboardPage() {
   const previousSessions = getPreviousSessions();
   const upcomingSessions = getUpcomingSessions();
 
-  const displayedSessions = sessionView === "today" 
-    ? todaySessions 
-    : sessionView === "previous" 
-    ? previousSessions 
+  const displayedSessions = sessionView === "today"
+    ? todaySessions
+    : sessionView === "previous"
+    ? previousSessions
     : upcomingSessions;
 
   const normalizedSearchQuery = searchQuery.trim().toLowerCase();
@@ -420,6 +419,7 @@ export default function DashboardPage() {
                   {filteredSessions.map((session, index) => {
                     const isActive = index === 0;
                     const hasStartedSession = hasSavedSessionState(session);
+                    const isCompleted = dashboardStats.completed_task_ids.includes(session.task.id);
                     const sessionDate = getSessionDate(session);
                     const showDate = sessionView !== "today";
 
@@ -463,21 +463,30 @@ export default function DashboardPage() {
                             </p>
                           </div>
                         </div>
-                        <button
-                          onClick={() =>
-                            navigate("/study-mode", {
-                              state: {
-                                courseId: session.courseId,
-                                courseName: session.courseName,
-                                task: session.task,
-                                dayIndex: session.dayIndex,
-                              },
-                            })
-                          }
-                          className="bg-[#cdc0ec] text-[#443b5f] px-6 py-2 rounded-lg font-semibold text-sm hover:brightness-110 transition-all active:scale-95"
-                        >
-                          {hasStartedSession ? "Continue Session" : "Start Session"}
-                        </button>
+                        {isCompleted ? (
+                          <button
+                            disabled
+                            className="cursor-not-allowed rounded-lg border-2 border-[#3a3a3a] bg-[#131313] px-6 py-2 text-sm font-semibold text-[#8e8d8d] opacity-80"
+                          >
+                            Completed
+                          </button>
+                        ) : (
+                          <button
+                            onClick={() =>
+                              navigate("/study-mode", {
+                                state: {
+                                  courseId: session.courseId,
+                                  courseName: session.courseName,
+                                  task: session.task,
+                                  dayIndex: session.dayIndex,
+                                },
+                              })
+                            }
+                            className="bg-[#cdc0ec] text-[#443b5f] px-6 py-2 rounded-lg font-semibold text-sm hover:brightness-110 transition-all active:scale-95"
+                          >
+                            {hasStartedSession ? "Continue Session" : "Start Session"}
+                          </button>
+                        )}
                       </div>
                     );
                   })}

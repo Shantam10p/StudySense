@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
+import { completeStudyTask } from "../api";
 import senseiLogo from "../assets/sensei.png";
 import type { PlannerStudyTask } from "../types/planner";
 
@@ -76,6 +77,8 @@ export default function StudyModePage() {
   const [isRunning, setIsRunning] = useState(true);
   const [timeLeft, setTimeLeft] = useState(session ? session.duration_minutes * 60 : 0);
   const [timerReady, setTimerReady] = useState(false);
+  const [isCompleting, setIsCompleting] = useState(false);
+  const [completionError, setCompletionError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!session) {
@@ -157,6 +160,27 @@ export default function StudyModePage() {
     setActiveTab(materialSections[0]?.label ?? "Concepts");
   }, [materialSections]);
 
+  const handleCompleteSession = async () => {
+    if (!session || isCompleting) {
+      return;
+    }
+
+    setIsCompleting(true);
+    setCompletionError(null);
+
+    try {
+      await completeStudyTask(session.id);
+      if (timerStorageKey) {
+        window.localStorage.removeItem(timerStorageKey);
+      }
+      navigate("/dashboard");
+    } catch (error) {
+      setCompletionError(error instanceof Error ? error.message : "Failed to complete session");
+    } finally {
+      setIsCompleting(false);
+    }
+  };
+
   if (!session || !state) {
     return null;
   }
@@ -209,7 +233,7 @@ export default function StudyModePage() {
                 <div className="relative z-10 mt-10 flex flex-wrap items-center justify-center gap-3">
                   <button
                     onClick={() => setIsRunning((current) => !current)}
-                    className="inline-flex items-center gap-2 rounded-lg bg-gradient-to-br from-[#cdc0ec] to-[#bfb2de] px-8 py-3 text-sm font-semibold text-[#443b5f] shadow-lg shadow-[#cdc0ec]/20 transition-all hover:scale-[1.02] active:scale-95"
+                    className="inline-flex items-center gap-2 rounded-lg border-2 border-[#3a3a3a] bg-[#131313] px-6 py-3 text-sm font-semibold text-[#e7e5e5] transition-all hover:border-[#cdc0ec]/40 hover:bg-[#1a1a1a] active:scale-95"
                   >
                     <span className="material-symbols-outlined text-lg">
                       {isRunning ? "pause" : "play_arrow"}
@@ -221,19 +245,23 @@ export default function StudyModePage() {
                       setTimeLeft(session.duration_minutes * 60);
                       setIsRunning(true);
                     }}
-                    className="inline-flex items-center gap-2 rounded-lg border-2 border-[#3a3a3a] bg-[#131313] px-6 py-3 text-sm font-semibold text-[#e7e5e5] transition-all hover:border-[#8fa1a1]/40 hover:bg-[#1a1a1a]"
+                    className="inline-flex items-center gap-2 rounded-lg border-2 border-[#3a3a3a] bg-[#131313] px-6 py-3 text-sm font-semibold text-[#e7e5e5] transition-all hover:border-[#cdc0ec]/40 hover:bg-[#1a1a1a] active:scale-95"
                   >
                     <span className="material-symbols-outlined text-lg">replay</span>
                     Restart
                   </button>
                   <button
-                    onClick={() => navigate(`/planner/${state.courseId}`)}
-                    className="inline-flex items-center gap-2 rounded-lg border-2 border-[#3a3a3a] bg-[#131313] px-6 py-3 text-sm font-semibold text-[#e7e5e5] transition-all hover:border-[#8fa1a1]/40 hover:bg-[#1a1a1a]"
+                    onClick={handleCompleteSession}
+                    disabled={isCompleting}
+                    className="inline-flex items-center gap-2 rounded-lg border-2 border-[#3a3a3a] bg-[#131313] px-6 py-3 text-sm font-semibold text-[#e7e5e5] transition-all hover:border-[#cdc0ec]/40 hover:bg-[#1a1a1a] active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
                   >
-                    <span className="material-symbols-outlined text-lg">skip_next</span>
-                    Skip
+                    <span className="material-symbols-outlined text-lg">check_circle</span>
+                    {isCompleting ? "Completing..." : "Complete"}
                   </button>
                 </div>
+                {completionError ? (
+                  <p className="relative z-10 mt-4 text-sm text-[#ec7c8a]">{completionError}</p>
+                ) : null}
               </div>
             </div>
           </section>
