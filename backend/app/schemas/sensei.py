@@ -1,0 +1,44 @@
+from pydantic import BaseModel
+from typing import List
+
+
+class ConceptItem(BaseModel):
+    title: str
+    explanation: str
+
+
+class PracticeQuestion(BaseModel):
+    question: str
+    answer: str
+
+
+#Content
+
+class SenseiContentRequest(BaseModel):
+    topic: str
+    course_name: str
+    course_id: int
+
+
+class SenseiContentResponse(BaseModel):
+    topic: str
+    concepts: List[ConceptItem]
+    practice_questions: List[PracticeQuestion]
+
+
+#Chat
+
+class ChatMessage(BaseModel):
+    role: str       # "user" | "assistant"
+    content: str
+
+
+class SenseiChatRequest(BaseModel):
+    topic: str
+    course_name: str
+    history: List[ChatMessage]
+    message: str
+
+
+class SenseiChatResponse(BaseModel):
+    reply: str
