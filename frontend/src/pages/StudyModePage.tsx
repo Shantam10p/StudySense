@@ -227,7 +227,7 @@ export default function StudyModePage() {
         <div className="mx-auto flex h-full max-w-[1600px] flex-col gap-6 lg:flex-row lg:gap-6">
 
           {/* left — timer */}
-          <section className="flex min-h-0 flex-col rounded-2xl border-2 border-[#3a3a3a] bg-[#131313] p-6 shadow-2xl shadow-black/20 lg:p-8 lg:w-[60%]">
+          <section className="flex min-h-0 flex-col rounded-2xl border-2 border-[#3a3a3a] bg-[#131313] p-6 shadow-2xl shadow-black/20 lg:p-8 lg:w-[55%]">
             <div className="mb-6 flex shrink-0 flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
               <div className="flex-1 space-y-4">
                 <button
@@ -301,7 +301,7 @@ export default function StudyModePage() {
           </section>
 
           {/* right — sensei panel */}
-          <aside className="flex min-h-0 w-full flex-col rounded-2xl border-2 border-[#3a3a3a] bg-[#131313] lg:w-[40%]">
+          <aside className="flex min-h-0 w-full flex-col rounded-2xl border-2 border-[#3a3a3a] bg-[#131313] lg:w-[45%]">
 
             {/* header */}
             <div className="shrink-0 border-b border-[#484848]/20 px-6 py-6">
