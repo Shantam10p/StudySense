@@ -1,10 +1,25 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { fetchCourses, fetchCoursePlan, fetchDashboardStats } from "../api";
+import { fetchCourses, fetchCoursePlan, fetchDashboardStats, fetchSenseiContent } from "../api";
 import { Sidebar } from "../components/Sidebar";
 import { Loader } from "../components/Loader";
 import type { Course } from "../types/course";
 import type { PlannerGenerateResponse, PlannerStudyTask } from "../types/planner";
+import type { SenseiContentResponse } from "../types/sensei";
+
+const LOADING_MESSAGES = [
+  "Sensei is reading your topic...",
+  "Identifying key concepts...",
+  "Preparing practice questions...",
+  "Putting it all together...",
+];
+
+function deriveTopicFromTitle(title: string) {
+  return title
+    .replace(/^(Study|Continue|Revisit|Review)\s+/i, "")
+    .replace(/\s+using\s+.+$/i, "")
+    .trim();
+}
 
 type SessionWithCourse = {
   task: PlannerStudyTask;
@@ -24,6 +39,9 @@ export default function DashboardPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [sessionView, setSessionView] = useState<"today" | "previous" | "upcoming">("today");
   const [isSessionMenuOpen, setIsSessionMenuOpen] = useState(false);
+  const [senseiLoadingTaskId, setSenseiLoadingTaskId] = useState<number | null>(null);
+  const [loadingProgress, setLoadingProgress] = useState(0);
+  const [loadingMessageIdx, setLoadingMessageIdx] = useState(0);
 
   useEffect(() => {
     const userStr = localStorage.getItem("auth_user");
@@ -159,6 +177,59 @@ export default function DashboardPage() {
         return dateA.localeCompare(dateB);
       })
       .slice(0, 10);
+  };
+
+  // fake progress bar while sensei loads
+  useEffect(() => {
+    if (senseiLoadingTaskId === null) return;
+    setLoadingProgress(0);
+    setLoadingMessageIdx(0);
+    const interval = setInterval(() => {
+      setLoadingProgress((prev) => {
+        if (prev >= 85) { clearInterval(interval); return 85; }
+        return prev + 3;
+      });
+    }, 120);
+    return () => clearInterval(interval);
+  }, [senseiLoadingTaskId]);
+
+  // rotate loading messages
+  useEffect(() => {
+    if (senseiLoadingTaskId === null) return;
+    const interval = setInterval(() => {
+      setLoadingMessageIdx((prev) => (prev + 1) % LOADING_MESSAGES.length);
+    }, 1800);
+    return () => clearInterval(interval);
+  }, [senseiLoadingTaskId]);
+
+  const handleStartSession = async (session: SessionWithCourse) => {
+    const topic = deriveTopicFromTitle(session.task.title);
+    setSenseiLoadingTaskId(session.task.id);
+
+    let senseiContent: SenseiContentResponse | undefined;
+    try {
+      senseiContent = await fetchSenseiContent({
+        topic,
+        course_name: session.courseName,
+        course_id: session.courseId,
+      });
+    } catch {
+      // if fetch fails, navigate anyway — StudyModePage will retry
+    }
+
+    setLoadingProgress(100);
+    await new Promise((r) => setTimeout(r, 300));
+    setSenseiLoadingTaskId(null);
+
+    navigate("/study-mode", {
+      state: {
+        courseId: session.courseId,
+        courseName: session.courseName,
+        task: session.task,
+        dayIndex: session.dayIndex,
+        senseiContent,
+      },
+    });
   };
 
   const calculateStats = () => {
@@ -489,10 +560,16 @@ export default function DashboardPage() {
                     const sessionDate = getSessionDate(session);
                     const showDate = sessionView !== "today";
 
+                    const isLoading = senseiLoadingTaskId === session.task.id;
+
                     return (
                       <div
                         key={`${session.courseId}-${session.task.id}`}
-                        className="group bg-[#1f2020] shadow-xl shadow-black/20 border-2 border-[#3a3a3a] rounded-xl p-6 transition-all duration-500 flex items-center justify-between"
+                        className={`relative overflow-hidden bg-[#1f2020] shadow-xl shadow-black/20 border-2 rounded-xl p-6 transition-all duration-500 flex items-center justify-between ${
+                          isLoading
+                            ? "border-[#cdc0ec]/25 bg-[#1c1a24]"
+                            : "border-[#3a3a3a]"
+                        }`}
                       >
                         <div className="flex items-center gap-6">
                           <div
@@ -504,16 +581,8 @@ export default function DashboardPage() {
                           </div>
                           <div>
                             <div className="flex items-center gap-2 mb-1">
-                              <span
-                                className={`w-2 h-2 rounded-full ${
-                                  isActive ? "bg-[#cdc0ec]" : "bg-[#8fa1a1]"
-                                }`}
-                              ></span>
-                              <span
-                                className={`text-[10px] font-bold uppercase tracking-widest ${
-                                  isActive ? "text-[#cdc0ec]" : "text-[#8fa1a1]"
-                                }`}
-                              >
+                              <span className={`w-2 h-2 rounded-full ${isActive ? "bg-[#cdc0ec]" : "bg-[#8fa1a1]"}`} />
+                              <span className={`text-[10px] font-bold uppercase tracking-widest ${isActive ? "text-[#cdc0ec]" : "text-[#8fa1a1]"}`}>
                                 {session.courseName}
                               </span>
                             </div>
@@ -521,37 +590,52 @@ export default function DashboardPage() {
                             <p className="text-sm text-[#acabaa]">
                               {session.task.task_type} • {session.task.duration_minutes}m
                               {showDate && sessionDate && (
-                                <>
-                                  {" • "}
-                                  <span className="text-[#8fa1a1] font-medium">{sessionDate}</span>
-                                </>
+                                <>{" • "}<span className="text-[#8fa1a1] font-medium">{sessionDate}</span></>
                               )}
                             </p>
                           </div>
                         </div>
+
                         {isCompleted ? (
-                          <button
-                            disabled
-                            className="cursor-not-allowed rounded-lg border-2 border-[#3a3a3a] bg-[#131313] px-6 py-2 text-sm font-semibold text-[#8e8d8d] opacity-80"
-                          >
+                          <button disabled className="cursor-not-allowed rounded-lg border-2 border-[#3a3a3a] bg-[#131313] px-6 py-2 text-sm font-semibold text-[#8e8d8d] opacity-80">
                             Completed
                           </button>
+                        ) : isLoading ? (
+                          <div className="flex flex-col items-end gap-2">
+                            <div className="flex items-center gap-2 rounded-lg bg-[#4b4166]/30 px-4 py-2">
+                              <span className="flex items-center gap-[3px]">
+                                {[0, 1, 2].map((i) => (
+                                  <span
+                                    key={i}
+                                    className="h-[5px] w-[5px] rounded-full bg-[#cdc0ec] animate-bounce"
+                                    style={{ animationDelay: `${i * 0.15}s` }}
+                                  />
+                                ))}
+                              </span>
+                              <span className="text-xs font-medium text-[#cdc0ec]">Preparing</span>
+                            </div>
+                            <p className="text-[10px] text-[#767575] transition-all duration-500">
+                              {LOADING_MESSAGES[loadingMessageIdx]}
+                            </p>
+                          </div>
                         ) : (
                           <button
-                            onClick={() =>
-                              navigate("/study-mode", {
-                                state: {
-                                  courseId: session.courseId,
-                                  courseName: session.courseName,
-                                  task: session.task,
-                                  dayIndex: session.dayIndex,
-                                },
-                              })
-                            }
-                            className="bg-[#cdc0ec] text-[#443b5f] px-6 py-2 rounded-lg font-semibold text-sm hover:brightness-110 transition-all active:scale-95"
+                            onClick={() => handleStartSession(session)}
+                            disabled={senseiLoadingTaskId !== null}
+                            className="bg-[#cdc0ec] text-[#443b5f] px-6 py-2 rounded-lg font-semibold text-sm hover:brightness-110 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
                           >
                             {hasStartedSession ? "Continue Session" : "Start Session"}
                           </button>
+                        )}
+
+                        {/* progress bar pinned to bottom edge */}
+                        {isLoading && (
+                          <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#2a2a2a]">
+                            <div
+                              className="h-full bg-gradient-to-r from-[#cdc0ec]/50 to-[#cdc0ec] transition-all duration-300 ease-out"
+                              style={{ width: `${loadingProgress}%` }}
+                            />
+                          </div>
                         )}
                       </div>
                     );
@@ -638,6 +722,7 @@ export default function DashboardPage() {
             "url('data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E')",
         }}
       ></div>
+
     </div>
   );
 }
