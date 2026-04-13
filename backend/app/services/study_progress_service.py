@@ -37,15 +37,18 @@ class StudyProgressService:
             try:
                 completed_sessions = self._count_completed_sessions(conn, user_id)
                 completion_dates = self._fetch_completion_dates(conn, user_id)
+                completed_task_ids = self._fetch_completed_task_ids(conn, user_id)
                 day_streak = self._calculate_day_streak(completion_dates)
             except ProgrammingError as exc:
                 if not self._is_missing_completions_table_error(exc):
                     raise
                 completed_sessions = 0
                 day_streak = 0
+                completed_task_ids = []
             return DashboardStatsResponse(
                 completed_sessions=completed_sessions,
                 day_streak=day_streak,
+                completed_task_ids=completed_task_ids,
             )
         finally:
             conn.close()
@@ -97,6 +100,23 @@ class StudyProgressService:
             )
             rows = cursor.fetchall()
             return [row["completed_date"] for row in rows if row.get("completed_date") is not None]
+        finally:
+            cursor.close()
+
+    def _fetch_completed_task_ids(self, conn, user_id: int) -> list[int]:
+        cursor = conn.cursor(dictionary=True)
+        try:
+            cursor.execute(
+                """
+                SELECT study_task_id
+                FROM study_task_completions
+                WHERE user_id = %s
+                ORDER BY study_task_id ASC
+                """,
+                (user_id,),
+            )
+            rows = cursor.fetchall()
+            return [int(row["study_task_id"]) for row in rows if row.get("study_task_id") is not None]
         finally:
             cursor.close()
 

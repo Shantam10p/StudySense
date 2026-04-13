@@ -9,3 +9,4 @@ class StudyTaskCompletionResponse(BaseModel):
 class DashboardStatsResponse(BaseModel):
     completed_sessions: int
     day_streak: int
+    completed_task_ids: list[int]
