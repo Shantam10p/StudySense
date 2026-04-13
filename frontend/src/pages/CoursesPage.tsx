@@ -68,7 +68,24 @@ export default function CoursesPage() {
           {!loading && error ? <p className="text-sm text-[#ec7c8a]">{error}</p> : null}
 
           {!loading && !error && courses.length === 0 ? (
-            <p className="text-[#acabaa]">No courses yet.</p>
+            <div className="bg-[#131313] rounded-xl border-2 border-[#2a2a2a] px-12 py-16 flex flex-col items-center text-center max-w-3xl mx-auto">
+              <div className="w-20 h-20 rounded-2xl bg-[#cdc0ec]/10 flex items-center justify-center mb-8">
+                <span className="material-symbols-outlined text-[#cdc0ec] text-5xl">school</span>
+              </div>
+              <h3 className="font-['Manrope'] text-3xl font-light text-[#e7e5e5] mb-3">
+                No courses yet
+              </h3>
+              <p className="text-base text-[#acabaa] max-w-lg mb-10 leading-relaxed">
+                Create your first course and generate a study plan to start tracking your progress.
+              </p>
+              <button
+                onClick={() => navigate("/planner/new")}
+                className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-br from-[#cdc0ec] to-[#bfb2de] text-[#443b5f] font-bold rounded-lg text-base transition-all hover:scale-[1.02] active:scale-95"
+              >
+                <span className="material-symbols-outlined text-xl">add</span>
+                Create Study Plan
+              </button>
+            </div>
           ) : null}
 
           {!loading && !error && courses.length > 0 ? (

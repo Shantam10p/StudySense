@@ -292,6 +292,72 @@ export default function DashboardPage() {
     );
   }
 
+  if (courses.length === 0) {
+    return (
+      <div className="flex min-h-screen bg-[#0e0e0e]">
+        <Sidebar />
+        <main className="ml-64 flex-1 flex flex-col">
+          <header className="flex flex-col pt-8 pb-6 px-12 max-w-screen-2xl bg-transparent">
+            <div className="space-y-2">
+              <p className="text-[#8fa1a1] font-body text-sm tracking-wide">{getCurrentDate()}</p>
+              <h2 className="font-['Manrope'] text-[3rem] leading-tight font-light text-[#cdc0ec]">
+                {getGreeting()}, {userName}.
+              </h2>
+            </div>
+          </header>
+
+          <div className="px-12 pb-8 max-w-screen-2xl space-y-6">
+            <section className="grid grid-cols-4 gap-4">
+              <div className="bg-[#131313] p-6 rounded-xl space-y-2 border-2 border-[#2a2a2a]">
+                <p className="text-[#acabaa] text-xs font-medium uppercase tracking-widest">Sessions Today</p>
+                <p className="text-3xl font-['Manrope'] font-bold text-[#cdc0ec]">0</p>
+              </div>
+              <div className="bg-[#131313] p-6 rounded-xl space-y-2 border-2 border-[#2a2a2a]">
+                <p className="text-[#acabaa] text-xs font-medium uppercase tracking-widest">Total Time</p>
+                <p className="text-3xl font-['Manrope'] font-bold text-[#cdc0ec]">0<span className="text-sm font-normal ml-1 text-[#acabaa]">m</span></p>
+              </div>
+              <div className="bg-[#131313] p-6 rounded-xl space-y-2 border-2 border-[#2a2a2a]">
+                <p className="text-[#acabaa] text-xs font-medium uppercase tracking-widest">Completed</p>
+                <p className="text-3xl font-['Manrope'] font-bold text-[#8fa1a1]">0</p>
+              </div>
+              <div className="bg-[#131313] p-6 rounded-xl space-y-2 border-2 border-[#2a2a2a]">
+                <p className="text-[#acabaa] text-xs font-medium uppercase tracking-widest">Day Streak</p>
+                <p className="text-3xl font-['Manrope'] font-bold text-[#7fd29a]">0</p>
+              </div>
+            </section>
+
+            <section className="bg-[#131313] rounded-xl border-2 border-[#2a2a2a] px-12 py-16 flex flex-col items-center text-center">
+              <div className="w-20 h-20 rounded-2xl bg-[#cdc0ec]/10 flex items-center justify-center mb-8">
+                <span className="material-symbols-outlined text-[#cdc0ec] text-5xl">auto_stories</span>
+              </div>
+              <h3 className="font-['Manrope'] text-3xl font-light text-[#e7e5e5] mb-3">
+                Start your study journey
+              </h3>
+              <p className="text-base text-[#acabaa] max-w-lg mb-10 leading-relaxed">
+                Create a course and generate a personalized study plan. Your sessions, progress, and streaks will appear here.
+              </p>
+              <button
+                onClick={() => navigate("/planner/new")}
+                className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-br from-[#cdc0ec] to-[#bfb2de] text-[#443b5f] font-bold rounded-lg text-base transition-all hover:scale-[1.02] active:scale-95"
+              >
+                <span className="material-symbols-outlined text-xl">add</span>
+                Create Study Plan
+              </button>
+            </section>
+          </div>
+        </main>
+
+        <div
+          className="fixed inset-0 pointer-events-none opacity-[0.03] z-[100]"
+          style={{
+            backgroundImage:
+              "url('data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E')",
+          }}
+        ></div>
+      </div>
+    );
+  }
+
   return (
     <div className="flex min-h-screen bg-[#0e0e0e]">
       <Sidebar />
