@@ -4,7 +4,9 @@ from typing import List
 
 class ConceptItem(BaseModel):
     title: str
-    explanation: str
+    definition: str
+    key_points: List[str]
+    example: str
 
 
 class PracticeQuestion(BaseModel):
