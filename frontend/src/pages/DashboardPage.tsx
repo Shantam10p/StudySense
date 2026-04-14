@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { fetchCourses, fetchCoursePlan, fetchDashboardStats, fetchSenseiContent } from "../api";
+import { fetchCourses, fetchCoursePlan, fetchDashboardStats, fetchSenseiContent, completeStudyTask, reopenStudyTask } from "../api";
 import { Sidebar } from "../components/Sidebar";
 import { Loader } from "../components/Loader";
 import type { Course } from "../types/course";
@@ -42,6 +42,7 @@ export default function DashboardPage() {
   const [senseiLoadingTaskId, setSenseiLoadingTaskId] = useState<number | null>(null);
   const [loadingProgress, setLoadingProgress] = useState(0);
   const [loadingMessageIdx, setLoadingMessageIdx] = useState(0);
+  const [togglingTaskId, setTogglingTaskId] = useState<number | null>(null);
 
   useEffect(() => {
     const userStr = localStorage.getItem("auth_user");
@@ -230,6 +231,40 @@ export default function DashboardPage() {
         senseiContent,
       },
     });
+  };
+
+  const handleToggleComplete = async (taskId: number, isCompleted: boolean) => {
+    setTogglingTaskId(taskId);
+    // optimistic update
+    setDashboardStats((prev) => ({
+      ...prev,
+      completed_task_ids: isCompleted
+        ? prev.completed_task_ids.filter((id) => id !== taskId)
+        : [...prev.completed_task_ids, taskId],
+      completed_sessions: isCompleted
+        ? Math.max(0, prev.completed_sessions - 1)
+        : prev.completed_sessions + 1,
+    }));
+    try {
+      if (isCompleted) {
+        await reopenStudyTask(taskId);
+      } else {
+        await completeStudyTask(taskId);
+      }
+    } catch {
+      // rollback on failure
+      setDashboardStats((prev) => ({
+        ...prev,
+        completed_task_ids: isCompleted
+          ? [...prev.completed_task_ids, taskId]
+          : prev.completed_task_ids.filter((id) => id !== taskId),
+        completed_sessions: isCompleted
+          ? prev.completed_sessions + 1
+          : Math.max(0, prev.completed_sessions - 1),
+      }));
+    } finally {
+      setTogglingTaskId(null);
+    }
   };
 
   const calculateStats = () => {
@@ -565,12 +600,14 @@ export default function DashboardPage() {
                     return (
                       <div
                         key={`${session.courseId}-${session.task.id}`}
-                        className={`relative overflow-hidden bg-[#1f2020] shadow-xl shadow-black/20 border-2 rounded-xl p-6 transition-all duration-500 flex items-center justify-between ${
+                        className={`relative overflow-hidden bg-[#1f2020] shadow-xl shadow-black/20 border-2 rounded-xl py-6 px-6 transition-all duration-500 flex items-center justify-between ${
                           isLoading
                             ? "border-[#cdc0ec]/25 bg-[#1c1a24]"
                             : "border-[#3a3a3a]"
                         }`}
                       >
+
+                        {/* Left: icon + info */}
                         <div className="flex items-center gap-6">
                           <div
                             className={`w-12 h-12 rounded-lg ${
@@ -596,39 +633,66 @@ export default function DashboardPage() {
                           </div>
                         </div>
 
-                        {isCompleted ? (
-                          <button disabled className="cursor-not-allowed rounded-lg border-2 border-[#3a3a3a] bg-[#131313] px-6 py-2 text-sm font-semibold text-[#8e8d8d] opacity-80">
-                            Completed
-                          </button>
-                        ) : isLoading ? (
-                          <div className="flex flex-col items-end gap-2">
-                            <div className="flex items-center gap-2 rounded-lg bg-[#4b4166]/30 px-4 py-2">
-                              <span className="flex items-center gap-[3px]">
-                                {[0, 1, 2].map((i) => (
-                                  <span
-                                    key={i}
-                                    className="h-[5px] w-[5px] rounded-full bg-[#cdc0ec] animate-bounce"
-                                    style={{ animationDelay: `${i * 0.15}s` }}
-                                  />
-                                ))}
-                              </span>
-                              <span className="text-xs font-medium text-[#cdc0ec]">Preparing</span>
-                            </div>
-                            <p className="text-[10px] text-[#767575] transition-all duration-500">
-                              {LOADING_MESSAGES[loadingMessageIdx]}
-                            </p>
-                          </div>
-                        ) : (
-                          <button
-                            onClick={() => handleStartSession(session)}
-                            disabled={senseiLoadingTaskId !== null}
-                            className="bg-[#cdc0ec] text-[#443b5f] px-6 py-2 rounded-lg font-semibold text-sm hover:brightness-110 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
-                          >
-                            {hasStartedSession ? "Continue Session" : "Start Session"}
-                          </button>
+                        {/* Secondary action: absolute top-right */}
+                        {!isLoading && (
+                          isCompleted ? (
+                            <button
+                              onClick={() => handleToggleComplete(session.task.id, true)}
+                              disabled={togglingTaskId === session.task.id}
+                              className="absolute top-3 right-6 flex items-center gap-1 text-[10px] font-medium text-[#767575] hover:text-[#e8956d] transition-colors disabled:opacity-40"
+                            >
+                              <span className="material-symbols-outlined text-[13px]">restart_alt</span>
+                              Reopen session
+                            </button>
+                          ) : (
+                            <button
+                              onClick={() => handleToggleComplete(session.task.id, false)}
+                              disabled={togglingTaskId === session.task.id || senseiLoadingTaskId !== null}
+                              className="absolute top-3 right-6 flex items-center gap-1 text-[10px] font-medium text-[#767575] hover:text-[#6dbf8a] transition-colors disabled:opacity-40"
+                            >
+                              <span className="material-symbols-outlined text-[13px]">check_circle</span>
+                              Mark as completed
+                            </button>
+                          )
                         )}
 
-                        {/* progress bar pinned to bottom edge */}
+                        {/* Right: primary action — slightly below center */}
+                        <div className="shrink-0 mt-4">
+                          {isLoading ? (
+                            <div className="flex flex-col items-end gap-2">
+                              <div className="flex items-center gap-2 rounded-lg bg-[#4b4166]/30 px-4 py-2">
+                                <span className="flex items-center gap-[3px]">
+                                  {[0, 1, 2].map((i) => (
+                                    <span
+                                      key={i}
+                                      className="h-[5px] w-[5px] rounded-full bg-[#cdc0ec] animate-bounce"
+                                      style={{ animationDelay: `${i * 0.15}s` }}
+                                    />
+                                  ))}
+                                </span>
+                                <span className="text-xs font-medium text-[#cdc0ec]">Preparing</span>
+                              </div>
+                              <p className="text-[10px] text-[#767575] transition-all duration-500">
+                                {LOADING_MESSAGES[loadingMessageIdx]}
+                              </p>
+                            </div>
+                          ) : isCompleted ? (
+                            <span className="flex items-center gap-1.5 rounded-lg border border-[#3a3a3a] bg-[#131313] px-4 py-2 text-sm font-semibold text-[#8e8d8d]">
+                              <span className="material-symbols-outlined text-base" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span>
+                              Completed
+                            </span>
+                          ) : (
+                            <button
+                              onClick={() => handleStartSession(session)}
+                              disabled={senseiLoadingTaskId !== null}
+                              className="bg-[#cdc0ec] text-[#443b5f] px-6 py-2 rounded-lg font-semibold text-sm hover:brightness-110 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                              {hasStartedSession ? "Continue Session" : "Start Session"}
+                            </button>
+                          )}
+                        </div>
+
+                        {/* progress bar */}
                         {isLoading && (
                           <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#2a2a2a]">
                             <div
