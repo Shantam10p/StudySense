@@ -91,18 +91,17 @@ Return raw valid JSON only. No markdown, no explanation outside the JSON.
   "practice_questions": [
     {{
       "question": "question text",
-      "answer": "thorough answer explaining the reasoning, not just the answer. Include why wrong answers are wrong if it's a tricky one."
+      "answer": "direct, clear answer. For conceptual questions explain the reasoning briefly. For tasks show the correct solution with a one-line explanation of why."
     }}
   ]
 }}
 
 Rules:
-- Cover ALL subtopics within {request.topic} needed for a typical exam — aim for 8-14 concepts
-- Order them so foundational concepts come first and each one logically leads to the next
-- Key points must be exam-specific and actionable, never generic filler like "this is important to know"
+- Cover ALL subtopics within {request.topic} — aim for 8-14 concepts
+- Order concepts so foundational ones come first and each logically leads to the next
+- Key points must be specific and actionable, never generic filler like "this is important to know"
 - Include code_example for any concept involving syntax, queries, commands, formulas, or code
-- The LAST concept must always be titled "Exam Focus" and list exactly what to prioritize, common exam traps, and what's most likely to be tested
-- Practice questions should cover: definitions, application, comparison between concepts, and common mistake types
+- Practice questions must be a mix of: short direct conceptual questions ("What is X?", "What is the difference between X and Y?") AND hands-on tasks ("Write a query to...", "What does this code output?", "Fix this query"). Aim for 8-10 questions total, roughly half conceptual half practical. Keep questions short and direct — no long essay prompts.
 - Return only the JSON object, nothing else"""
 
         try:
