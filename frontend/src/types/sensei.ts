@@ -3,6 +3,7 @@ export type SenseiConceptItem = {
   definition: string;
   key_points: string[];
   example: string;
+  code_example?: string;
 };
 
 export type SenseiPracticeQuestion = {
