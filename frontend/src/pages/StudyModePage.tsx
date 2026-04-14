@@ -41,6 +41,13 @@ export default function StudyModePage() {
     : null;
   const topic = useMemo(() => deriveTopicFromTitle(session?.title ?? "this topic"), [session?.title]);
 
+  const userName = useMemo(() => {
+    try {
+      const u = JSON.parse(localStorage.getItem("auth_user") || "{}");
+      return u.name?.split(" ")[0] || "there";
+    } catch { return "there"; }
+  }, []);
+
   // timer state
   const [activeTab, setActiveTab] = useState<Tab>("Notes");
   const [isRunning, setIsRunning] = useState(true);
@@ -128,7 +135,7 @@ export default function StudyModePage() {
 
     const welcome: SenseiChatMessage = {
       role: "assistant",
-      content: `Hi! I'm Sensei. Ask me anything about ${topic} and I'll help you understand it.`,
+      content: `Hi ${userName}! I'm your Sensei. Ask me anything about ${topic} and I'll help you understand it.`,
     };
 
     if (state.senseiContent) {
@@ -493,7 +500,7 @@ export default function StudyModePage() {
             {/* chat input — only visible on Chat tab */}
             {activeTab === "Chat" && (
               <div className="shrink-0 border-t border-[#484848]/20 p-4">
-                <div className="flex items-end gap-2 rounded-2xl border border-[#484848]/20 bg-[#171818] px-4 py-3">
+                <div className="flex items-center gap-2 rounded-2xl border border-[#484848]/20 bg-[#171818] px-4 py-3">
                   <textarea
                     value={chatInput}
                     onChange={(e) => setChatInput(e.target.value)}
