@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { generatePlan } from "../api/index";
@@ -14,8 +14,26 @@ export default function PlannerPage() {
   const [textbook, setTextbook] = useState("");
 
   const [loading, setLoading] = useState(false);
+  const [loadingMsgIdx, setLoadingMsgIdx] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
+
+  const LOADING_MESSAGES = [
+    "Sensei is reading your topics...",
+    "Analysing difficulty and priority...",
+    "Designing your study schedule...",
+    "Balancing sessions across days...",
+    "Almost ready...",
+  ];
+
+  useEffect(() => {
+    if (!loading) return;
+    setLoadingMsgIdx(0);
+    const interval = setInterval(() => {
+      setLoadingMsgIdx((prev) => Math.min(prev + 1, LOADING_MESSAGES.length - 1));
+    }, 2200);
+    return () => clearInterval(interval);
+  }, [loading]);
 
   const addTopic = () => {
     const trimmed = currentTopic.trim();
@@ -57,27 +75,15 @@ export default function PlannerPage() {
     setDraggedIndex(null);
   };
 
-  async function onGenerate(e: React.FormEvent) {
-    e.preventDefault();
+  const PENDING_PLAN_KEY = "sensei_pending_plan";
+
+  async function runGenerate(payload: { course_name: string; exam_date: string; topics: string[]; daily_study_hours: number; textbook?: string }) {
     setLoading(true);
     setError(null);
-
-    if (topics.length === 0) {
-      setError("Please add at least one topic");
-      setLoading(false);
-      return;
-    }
-
+    sessionStorage.setItem(PENDING_PLAN_KEY, JSON.stringify(payload));
     try {
-      const payload = {
-        course_name: courseName,
-        exam_date: examDate,
-        topics: topics,
-        daily_study_hours: dailyStudyHours,
-        ...(textbook.trim() ? { textbook: textbook.trim() } : {}),
-      };
-
       const data = await generatePlan(payload);
+      sessionStorage.removeItem(PENDING_PLAN_KEY);
       navigate(`/planner/${data.course_id}`, {
         state: {
           generatedWarning: data.warning ?? null,
@@ -85,11 +91,44 @@ export default function PlannerPage() {
         },
       });
     } catch (err: any) {
+      sessionStorage.removeItem(PENDING_PLAN_KEY);
       setError(err?.message || "Failed to generate plan");
     } finally {
       setLoading(false);
     }
   }
+
+  async function onGenerate(e: React.FormEvent) {
+    e.preventDefault();
+    if (topics.length === 0) {
+      setError("Please add at least one topic");
+      return;
+    }
+    runGenerate({
+      course_name: courseName,
+      exam_date: examDate,
+      topics,
+      daily_study_hours: dailyStudyHours,
+      ...(textbook.trim() ? { textbook: textbook.trim() } : {}),
+    });
+  }
+
+  // restore loading if user navigated away mid-generation
+  useEffect(() => {
+    const raw = sessionStorage.getItem(PENDING_PLAN_KEY);
+    if (!raw) return;
+    try {
+      const pending = JSON.parse(raw);
+      setCourseName(pending.course_name ?? "");
+      setExamDate(pending.exam_date ?? "");
+      setTopics(pending.topics ?? []);
+      setDailyStudyHours(pending.daily_study_hours ?? 2);
+      setTextbook(pending.textbook ?? "");
+      runGenerate(pending);
+    } catch {
+      sessionStorage.removeItem(PENDING_PLAN_KEY);
+    }
+  }, []);
 
   return (
     <div className="flex min-h-screen bg-[#0e0e0e]">
@@ -244,7 +283,7 @@ export default function PlannerPage() {
                 {loading ? (
                   <>
                     <span className="material-symbols-outlined animate-spin text-base">progress_activity</span>
-                    <span>Generating AI Plan...</span>
+                    <span className="transition-all duration-500">{LOADING_MESSAGES[loadingMsgIdx]}</span>
                   </>
                 ) : (
                   <>
