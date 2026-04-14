@@ -155,7 +155,7 @@ export default function PlannerPage() {
                   value={courseName}
                   onChange={(e) => setCourseName(e.target.value)}
                   className="w-full bg-[#1f2020] border border-[#484848]/30 rounded-lg px-4 py-3 text-[#e7e5e5] placeholder:text-[#767575] focus:outline-none focus:border-[#cdc0ec] focus:ring-1 focus:ring-[#cdc0ec] transition-colors"
-                  placeholder="e.g. Organic Chemistry"
+                  placeholder="e.g. Data Structures"
                   required
                 />
               </div>
@@ -249,7 +249,7 @@ export default function PlannerPage() {
                     onChange={(e) => setCurrentTopic(e.target.value)}
                     onKeyDown={handleTopicKeyDown}
                     className="flex-1 bg-[#1f2020] border border-[#484848]/30 rounded-lg px-4 py-3 text-[#e7e5e5] placeholder:text-[#767575] focus:outline-none focus:border-[#cdc0ec] focus:ring-1 focus:ring-[#cdc0ec] transition-colors"
-                    placeholder="Add a topic (e.g., Limits, Derivatives)"
+                    placeholder="e.g. Arrays, Linked Lists, Binary Trees"
                   />
                   <button
                     type="button"
