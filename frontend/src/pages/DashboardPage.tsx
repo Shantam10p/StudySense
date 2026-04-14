@@ -303,10 +303,18 @@ export default function DashboardPage() {
     };
   };
 
-  const getSessionIcon = (index: number) => {
-    const icons = ["psychology", "palette", "science", "calculate"];
-    return icons[index % icons.length];
-  };
+  const COURSE_PALETTE = [
+    { bg: "bg-[#cdc0ec]/10", text: "text-[#cdc0ec]", dot: "bg-[#cdc0ec]" },
+    { bg: "bg-[#7fd29a]/10", text: "text-[#7fd29a]", dot: "bg-[#7fd29a]" },
+    { bg: "bg-[#6db8d4]/10", text: "text-[#6db8d4]", dot: "bg-[#6db8d4]" },
+    { bg: "bg-[#e8956d]/10", text: "text-[#e8956d]", dot: "bg-[#e8956d]" },
+    { bg: "bg-[#edbbb1]/10", text: "text-[#edbbb1]", dot: "bg-[#edbbb1]" },
+    { bg: "bg-[#d4c47a]/10", text: "text-[#d4c47a]", dot: "bg-[#d4c47a]" },
+    { bg: "bg-[#a8d4c0]/10", text: "text-[#a8d4c0]", dot: "bg-[#a8d4c0]" },
+    { bg: "bg-[#c4a8d4]/10", text: "text-[#c4a8d4]", dot: "bg-[#c4a8d4]" },
+  ];
+
+  const getCourseStyle = (courseId: number) => COURSE_PALETTE[courseId % COURSE_PALETTE.length];
 
   const getSessionDate = (session: SessionWithCourse) => {
     const plan = plans.get(session.courseId);
@@ -604,14 +612,14 @@ export default function DashboardPage() {
                 </div>
               ) : (
                 <div className="space-y-4">
-                  {filteredSessions.map((session, index) => {
-                    const isActive = index === 0;
+                  {filteredSessions.map((session) => {
                     const hasStartedSession = hasSavedSessionState(session);
                     const isCompleted = dashboardStats.completed_task_ids.includes(session.task.id);
                     const sessionDate = getSessionDate(session);
                     const showDate = sessionView !== "today";
 
                     const isLoading = senseiLoadingTaskId === session.task.id;
+                    const courseStyle = getCourseStyle(session.courseId);
 
                     return (
                       <div
@@ -625,17 +633,15 @@ export default function DashboardPage() {
 
                         {/* Left: icon + info */}
                         <div className="flex items-center gap-6">
-                          <div
-                            className={`w-12 h-12 rounded-lg ${
-                              isActive ? "bg-[#cdc0ec]/10" : "bg-[#8fa1a1]/10"
-                            } flex items-center justify-center text-${isActive ? "[#cdc0ec]" : "[#8fa1a1]"}`}
-                          >
-                            <span className="material-symbols-outlined">{getSessionIcon(index)}</span>
+                          <div className={`w-12 h-12 rounded-lg ${courseStyle.bg} flex items-center justify-center ${courseStyle.text}`}>
+                            <span className="text-lg font-bold font-['Manrope'] tracking-tight">
+                              {session.courseName.charAt(0).toUpperCase()}
+                            </span>
                           </div>
                           <div>
                             <div className="flex items-center gap-2 mb-1">
-                              <span className={`w-2 h-2 rounded-full ${isActive ? "bg-[#cdc0ec]" : "bg-[#8fa1a1]"}`} />
-                              <span className={`text-[10px] font-bold uppercase tracking-widest ${isActive ? "text-[#cdc0ec]" : "text-[#8fa1a1]"}`}>
+                              <span className={`w-2 h-2 rounded-full ${courseStyle.dot}`} />
+                              <span className={`text-[10px] font-bold uppercase tracking-widest ${courseStyle.text}`}>
                                 {session.courseName}
                               </span>
                             </div>
