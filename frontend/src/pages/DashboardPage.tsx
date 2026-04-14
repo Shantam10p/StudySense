@@ -618,10 +618,10 @@ export default function DashboardPage() {
                     return (
                       <div
                         key={`${session.courseId}-${session.task.id}`}
-                        className={`relative overflow-hidden bg-[#1f2020] shadow-xl shadow-black/20 border-2 rounded-xl py-6 px-6 transition-all duration-500 flex items-center justify-between ${
+                        className={`relative overflow-hidden shadow-xl shadow-black/20 border-2 rounded-xl py-6 px-6 transition-all duration-500 flex items-center justify-between ${
                           isLoading
                             ? "border-[#cdc0ec]/40 bg-[#1a1726]"
-                            : "border-[#3a3a3a]"
+                            : "border-[#3a3a3a] bg-[#1f2020]"
                         }`}
                       >
 
