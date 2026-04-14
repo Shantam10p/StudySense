@@ -203,9 +203,12 @@ export default function DashboardPage() {
     return () => clearInterval(interval);
   }, [senseiLoadingTaskId]);
 
+  const PENDING_SESSION_KEY = "sensei_pending_session";
+
   const handleStartSession = async (session: SessionWithCourse) => {
     const topic = deriveTopicFromTitle(session.task.title);
     setSenseiLoadingTaskId(session.task.id);
+    sessionStorage.setItem(PENDING_SESSION_KEY, JSON.stringify(session));
 
     let senseiContent: SenseiContentResponse | undefined;
     try {
@@ -221,6 +224,7 @@ export default function DashboardPage() {
     setLoadingProgress(100);
     await new Promise((r) => setTimeout(r, 300));
     setSenseiLoadingTaskId(null);
+    sessionStorage.removeItem(PENDING_SESSION_KEY);
 
     navigate("/study-mode", {
       state: {
@@ -232,6 +236,18 @@ export default function DashboardPage() {
       },
     });
   };
+
+  // restore loading state if user navigated away mid-load
+  useEffect(() => {
+    const raw = sessionStorage.getItem(PENDING_SESSION_KEY);
+    if (!raw) return;
+    try {
+      const pending = JSON.parse(raw) as SessionWithCourse;
+      handleStartSession(pending);
+    } catch {
+      sessionStorage.removeItem(PENDING_SESSION_KEY);
+    }
+  }, []);
 
   const handleToggleComplete = async (taskId: number, isCompleted: boolean) => {
     setTogglingTaskId(taskId);
@@ -602,7 +618,7 @@ export default function DashboardPage() {
                         key={`${session.courseId}-${session.task.id}`}
                         className={`relative overflow-hidden bg-[#1f2020] shadow-xl shadow-black/20 border-2 rounded-xl py-6 px-6 transition-all duration-500 flex items-center justify-between ${
                           isLoading
-                            ? "border-[#cdc0ec]/25 bg-[#1c1a24]"
+                            ? "border-[#cdc0ec]/40 bg-[#1a1726]"
                             : "border-[#3a3a3a]"
                         }`}
                       >
@@ -672,7 +688,7 @@ export default function DashboardPage() {
                                 </span>
                                 <span className="text-xs font-medium text-[#cdc0ec]">Preparing</span>
                               </div>
-                              <p className="text-[10px] text-[#767575] transition-all duration-500">
+                              <p className="text-[11px] font-semibold text-[#9b8ec4] transition-all duration-500">
                                 {LOADING_MESSAGES[loadingMessageIdx]}
                               </p>
                             </div>
