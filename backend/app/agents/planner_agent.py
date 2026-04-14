@@ -62,7 +62,7 @@ class PlannerAgent:
         if self.llm is None:
             return {
                 **state,
-                "analysis": self._build_fallback_analysis(normalized_topics),
+                "analysis": self._build_fallback_analysis(normalized_topics, total_available_minutes),
             }
 
         prompt = f"""You are a study planning assistant. Return raw valid JSON only. No markdown fences, no explanation.
@@ -79,17 +79,18 @@ Topics: {json.dumps(normalized_topics)}
 Step 1 — Budget: There are {total_available_minutes} total minutes available. The sum of (session_count × study_session_minutes) + (review_sessions × review_session_minutes) across ALL topics must be ≤ {total_available_minutes}. Distribute this budget proportionally based on each topic's priority and difficulty.
 
 Step 2 — Session design:
+- EVERY topic must get at least 1 study session — no topic can be left with session_count = 0.
 - Harder/higher-priority topics get longer sessions (30–60 min) and more of them.
 - Easier/lower-priority topics get shorter sessions (15–30 min) and fewer.
 - Vary durations per topic — each topic should reflect its own difficulty.
-- Review sessions are earned, not default. Only assign them to high-priority or hard topics. Easy or low-priority topics get 0 review sessions.
+- Review sessions are earned, not default. Only assign them if the budget comfortably allows after guaranteeing every topic has at least 1 study session. Default review_sessions to 0.
 
 Step 3 — Ordering: Set learning_order so prerequisite/foundational topics come first.
 
 Return JSON matching this schema:
 {{"topics":[{{"name":"topic name","priority":"high|medium|low","difficulty":"easy|medium|hard","total_minutes":"<int>","session_count":"<int>","review_sessions":"<int: 0 if not needed>","study_session_minutes":"<int: varies per topic>","review_session_minutes":"<int: 0 if no reviews>","learning_order":"<int>"}}]}}
 
-Critical: The total scheduled minutes across all topics must not exceed {total_available_minutes}.
+Critical: The total scheduled minutes across all topics must not exceed {total_available_minutes}. Every topic must have session_count ≥ 1.
 Return only the JSON object."""
 
         try:
@@ -98,27 +99,32 @@ Return only the JSON object."""
             print("Planner agent raw LLM response:", content)
             parsed = json.loads(content)
             topics = parsed.get("topics")
-            analysis = {"topics": topics} if isinstance(topics, list) else self._build_fallback_analysis(normalized_topics)
+            analysis = {"topics": topics} if isinstance(topics, list) else self._build_fallback_analysis(normalized_topics, total_available_minutes)
         except (json.JSONDecodeError, ValueError, TypeError):
-            analysis = self._build_fallback_analysis(normalized_topics)
+            analysis = self._build_fallback_analysis(normalized_topics, total_available_minutes)
 
         return {
             **state,
             "analysis": analysis,
         }
 
-    def _build_fallback_analysis(self, topics: list[str]) -> dict:
+    def _build_fallback_analysis(self, topics: list[str], total_available_minutes: int = 0) -> dict:
+        n = len(topics) or 1
+        session_minutes = 60
+        # give each topic an equal share of the budget, minimum 1 session each
+        budget_per_topic = max(session_minutes, total_available_minutes // n) if total_available_minutes else session_minutes
+        sessions_per_topic = max(1, budget_per_topic // session_minutes)
         return {
             "topics": [
                 {
                     "name": topic,
                     "priority": "medium",
                     "difficulty": "medium",
-                    "total_minutes": 120,
-                    "session_count": 2,
-                    "review_sessions": 1,
-                    "study_session_minutes": 60,
-                    "review_session_minutes": 30,
+                    "total_minutes": sessions_per_topic * session_minutes,
+                    "session_count": sessions_per_topic,
+                    "review_sessions": 0,
+                    "study_session_minutes": session_minutes,
+                    "review_session_minutes": 0,
                     "learning_order": index,
                 }
                 for index, topic in enumerate(topics, start=1)
