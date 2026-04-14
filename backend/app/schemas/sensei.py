@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import List
+from typing import List, Optional
 
 
 class ConceptItem(BaseModel):
@@ -7,6 +7,7 @@ class ConceptItem(BaseModel):
     definition: str
     key_points: List[str]
     example: str
+    code_example: Optional[str] = None
 
 
 class PracticeQuestion(BaseModel):
