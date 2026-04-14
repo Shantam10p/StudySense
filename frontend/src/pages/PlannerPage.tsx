@@ -140,7 +140,7 @@ export default function PlannerPage() {
             <h2 className="font-['Manrope'] text-[3rem] leading-tight font-light text-[#cdc0ec]">
               Create Study Plan
             </h2>
-            <p className="text-[#acabaa] text-sm">Let Sensei's AI design your personalized learning path</p>
+            <p className="text-[#acabaa] text-sm">Let Sensei design your personalized learning path</p>
           </div>
         </header>
 
