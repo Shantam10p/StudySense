@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
 import { completeStudyTask, fetchSenseiContent, sendSenseiMessage } from "../api";
-import senseiLogo from "../assets/sensei.png";
+import senseiLogo from "../assets/sensei_face.png";
 import type { PlannerStudyTask } from "../types/planner";
 import type { SenseiChatMessage, SenseiConceptItem, SenseiContentResponse, SenseiPracticeQuestion } from "../types/sensei";
 
