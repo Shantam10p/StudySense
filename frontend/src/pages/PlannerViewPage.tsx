@@ -15,7 +15,8 @@ export default function PlannerViewPage() {
   const [plan, setPlan] = useState<PlannerGenerateResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const generatedWarning = (location.state as { generatedWarning?: string | null } | null)?.generatedWarning;
+  const locationState = location.state as { unscheduled?: string[] } | null;
+  const justCreated = locationState !== null && "unscheduled" in (locationState ?? {});
 
   useEffect(() => {
     async function loadPlannerView(targetCourseId: number) {
@@ -85,12 +86,25 @@ export default function PlannerViewPage() {
             </div>
           )}
 
-          {generatedWarning && (
-            <div className="bg-[#4b4166]/20 border border-[#cdc0ec]/30 rounded-lg p-4 mb-6">
-              <div className="flex items-start gap-3">
-                <span className="material-symbols-outlined text-[#cdc0ec] text-base mt-0.5">info</span>
-                <p className="text-sm text-[#dbcefb]">{generatedWarning}</p>
+
+          {justCreated && (
+            <div className="bg-[#141a1f] border border-[#6db8d4]/30 rounded-xl p-5 mb-6 flex items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-lg bg-[#6db8d4]/10 flex items-center justify-center shrink-0">
+                  <span className="material-symbols-outlined text-[#6db8d4] text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span>
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-[#e7e5e5]">Your study plan is ready!</p>
+                  <p className="text-xs text-[#acabaa] mt-0.5">Head to the dashboard to start your first session.</p>
+                </div>
               </div>
+              <button
+                onClick={() => navigate("/")}
+                className="shrink-0 flex items-center gap-1.5 px-4 py-2 bg-[#6db8d4]/15 hover:bg-[#6db8d4]/25 text-[#6db8d4] rounded-lg text-sm font-semibold transition-colors"
+              >
+                Go to Dashboard
+                <span className="material-symbols-outlined text-base">arrow_forward</span>
+              </button>
             </div>
           )}
 
