@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { fetchCourses, fetchCoursePlan, fetchDashboardStats, fetchSenseiContent, completeStudyTask, reopenStudyTask } from "../api";
+import { getCourseStyle } from "../utils/courseStyle";
 import { Sidebar } from "../components/Sidebar";
 import { Loader } from "../components/Loader";
 import type { Course } from "../types/course";
@@ -303,18 +304,6 @@ export default function DashboardPage() {
     };
   };
 
-  const COURSE_PALETTE = [
-    { bg: "bg-[#cdc0ec]/10", text: "text-[#cdc0ec]", dot: "bg-[#cdc0ec]" },
-    { bg: "bg-[#7fd29a]/10", text: "text-[#7fd29a]", dot: "bg-[#7fd29a]" },
-    { bg: "bg-[#6db8d4]/10", text: "text-[#6db8d4]", dot: "bg-[#6db8d4]" },
-    { bg: "bg-[#e8956d]/10", text: "text-[#e8956d]", dot: "bg-[#e8956d]" },
-    { bg: "bg-[#edbbb1]/10", text: "text-[#edbbb1]", dot: "bg-[#edbbb1]" },
-    { bg: "bg-[#d4c47a]/10", text: "text-[#d4c47a]", dot: "bg-[#d4c47a]" },
-    { bg: "bg-[#a8d4c0]/10", text: "text-[#a8d4c0]", dot: "bg-[#a8d4c0]" },
-    { bg: "bg-[#c4a8d4]/10", text: "text-[#c4a8d4]", dot: "bg-[#c4a8d4]" },
-  ];
-
-  const getCourseStyle = (courseId: number) => COURSE_PALETTE[courseId % COURSE_PALETTE.length];
 
   const getSessionDate = (session: SessionWithCourse) => {
     const plan = plans.get(session.courseId);
@@ -624,7 +613,7 @@ export default function DashboardPage() {
                     const showDate = sessionView !== "today";
 
                     const isLoading = senseiLoadingTaskId === session.task.id;
-                    const courseStyle = getCourseStyle(session.courseId);
+                    const courseStyle = getCourseStyle(session.courseId, courses.map(c => c.id));
 
                     return (
                       <div

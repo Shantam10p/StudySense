@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { fetchCourses, fetchCoursePlan, fetchDashboardStats } from "../api";
+import { getCourseStyle } from "../utils/courseStyle";
 import { Sidebar } from "../components/Sidebar";
 import { Loader } from "../components/Loader";
 import type { Course } from "../types/course";
@@ -139,13 +140,21 @@ export default function ProgressPage() {
                   const progress = calculateCourseProgress(course.id);
                   const plan = plans.get(course.id);
 
+                  const style = getCourseStyle(course.id, courses.map(c => c.id));
                   return (
                     <div
                       key={course.id}
-                      className="bg-[#131313] rounded-xl p-6 border border-[#484848]/10 hover:border-[#cdc0ec]/20 transition-all"
+                      className="bg-[#131313] rounded-xl p-6 border border-[#484848]/10 transition-all"
                     >
+                      <div className="flex items-center gap-3 mb-4">
+                        <div className={`w-10 h-10 rounded-lg ${style.bg} flex items-center justify-center shrink-0`}>
+                          <span className={`text-base font-bold font-['Manrope'] ${style.text}`}>
+                            {course.course_name.charAt(0).toUpperCase()}
+                          </span>
+                        </div>
+                        <h4 className="text-lg font-medium text-[#e7e5e5]">{course.course_name}</h4>
+                      </div>
                       <div className="mb-4">
-                        <h4 className="text-lg font-medium text-[#e7e5e5] mb-2">{course.course_name}</h4>
                         <div className="flex items-center gap-4 text-sm text-[#acabaa]">
                           <div className="flex items-center gap-1">
                             <span className="material-symbols-outlined text-sm">event</span>
@@ -161,11 +170,11 @@ export default function ProgressPage() {
                       <div className="space-y-2">
                         <div className="flex items-center justify-between text-sm">
                           <span className="text-[#acabaa]">Progress</span>
-                          <span className="text-[#cdc0ec] font-semibold">{progress.percentage}%</span>
+                          <span className={`${style.text} font-semibold`}>{progress.percentage}%</span>
                         </div>
                         <div className="w-full bg-[#1f2020] rounded-full h-2 overflow-hidden">
                           <div
-                            className="bg-gradient-to-r from-[#cdc0ec] to-[#bfb2de] h-full rounded-full transition-all duration-500"
+                            className={`${style.dot} h-full rounded-full transition-all duration-500`}
                             style={{ width: `${progress.percentage}%` }}
                           ></div>
                         </div>

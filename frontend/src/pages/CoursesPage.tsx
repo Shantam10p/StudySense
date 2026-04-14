@@ -94,6 +94,7 @@ export default function CoursesPage() {
                 <CourseCard
                   key={course.id}
                   course={course}
+                  allCourseIds={courses.map(c => c.id)}
                   onDelete={() => setDeletingId(course.id)}
                   onView={() => navigate(`/planner/${course.id}`)}
                 />
