@@ -52,6 +52,7 @@ export default function StudyModePage() {
   // sensei content state
   const [concepts, setConcepts] = useState<SenseiConceptItem[]>([]);
   const [practiceQuestions, setPracticeQuestions] = useState<SenseiPracticeQuestion[]>([]);
+  const [expandedAnswers, setExpandedAnswers] = useState<Set<number>>(new Set());
   const [contentLoading, setContentLoading] = useState(true);
   const [contentError, setContentError] = useState<string | null>(null);
 
@@ -366,10 +367,10 @@ export default function StudyModePage() {
                     >
                       {/* title row */}
                       <div className="flex items-center gap-2.5 mb-4">
-                        <span className="text-[10px] font-mono font-bold tabular-nums text-[#cdc0ec]/40">
+                        <span className="text-[11px] font-mono font-bold tabular-nums text-[#cdc0ec]/70">
                           {String(i + 1).padStart(2, "0")}
                         </span>
-                        <h4 className="text-[13px] font-semibold leading-snug text-[#e7e5e5]">
+                        <h4 className="text-[14px] font-semibold leading-snug text-[#e7e5e5]">
                           {concept.title}
                         </h4>
                       </div>
@@ -381,13 +382,13 @@ export default function StudyModePage() {
 
                       {/* key points */}
                       <div className="mb-5">
-                        <p className="text-[9px] font-bold uppercase tracking-[0.15em] mb-3 text-[#cdc0ec]/40">
+                        <p className="text-[10px] font-bold uppercase tracking-[0.15em] mb-3 text-[#cdc0ec]">
                           Key Points
                         </p>
                         <ul className="space-y-2.5">
                           {concept.key_points.map((point, j) => (
                             <li key={j} className="flex items-start gap-2.5 text-[12px] text-[#e7e5e5] leading-relaxed">
-                              <span className="mt-[3px] shrink-0 text-[10px] font-bold text-[#cdc0ec]/60">›</span>
+                              <span className="mt-[3px] shrink-0 text-[11px] font-bold text-[#cdc0ec]">›</span>
                               {point}
                             </li>
                           ))}
@@ -396,8 +397,8 @@ export default function StudyModePage() {
 
                       {/* example */}
                       <div className="rounded-lg bg-[#0f0f0f] px-4 py-3.5 text-[12px] leading-relaxed text-[#8fa1a1]">
-                        <span className="text-[9px] font-bold uppercase tracking-[0.12em] mr-2 text-[#cdc0ec]/40">
-                          Example
+                        <span className="text-[10px] font-bold uppercase tracking-[0.12em] mr-2 text-[#8fa1a1]">
+                          Example —
                         </span>
                         {concept.example}
                       </div>
@@ -405,7 +406,7 @@ export default function StudyModePage() {
                       {/* code block */}
                       {concept.code_example && (
                         <div className="mt-4">
-                          <p className="text-[9px] font-bold uppercase tracking-[0.15em] mb-2 text-[#7fd29a]/50">
+                          <p className="text-[10px] font-bold uppercase tracking-[0.15em] mb-2 text-[#7fd29a]">
                             Code Example
                           </p>
                           <pre className="overflow-x-auto rounded-lg bg-[#0a0a0a] border border-[#1e1e1e] px-4 py-3.5 text-[11px] text-[#7fd29a] font-mono leading-relaxed whitespace-pre">
@@ -420,13 +421,42 @@ export default function StudyModePage() {
 
               {/* practice questions tab */}
               {activeTab === "Practice Questions" && !contentLoading && !contentError && (
-                <div className="space-y-4">
+                <div className="space-y-5">
                   {practiceQuestions.map((pq, i) => (
-                    <div key={i} className="rounded-2xl bg-[#1b1c1c] p-5 text-sm leading-relaxed">
-                      <p className="mb-3 font-semibold text-[#e7e5e5]">
-                        <span className="mr-2 text-[#cdc0ec]">Q{i + 1}.</span>{pq.question}
-                      </p>
-                      <p className="border-t border-[#3a3a3a] pt-3 text-[#acabaa]">{pq.answer}</p>
+                    <div key={i} className="rounded-xl border-l-[3px] border-l-[#8fa1a1]/40 bg-[#161616] border border-[#202020] px-5 py-6">
+                      {/* number + question */}
+                      <div className="flex items-start gap-2.5 mb-5">
+                        <span className="text-[11px] font-mono font-bold tabular-nums text-[#8fa1a1]/70 mt-[2px] shrink-0">
+                          {String(i + 1).padStart(2, "0")}
+                        </span>
+                        <p className="text-[13px] font-semibold leading-relaxed text-[#e7e5e5]">
+                          {pq.question}
+                        </p>
+                      </div>
+
+                      {/* answer */}
+                      <div>
+                        <button
+                          onClick={() => setExpandedAnswers((prev) => {
+                            const next = new Set(prev);
+                            next.has(i) ? next.delete(i) : next.add(i);
+                            return next;
+                          })}
+                          className="flex items-center gap-1.5 mb-2.5 group"
+                        >
+                          <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-[#8fa1a1] group-hover:text-[#a8bcbc] transition-colors">
+                            {expandedAnswers.has(i) ? "Hide Answer" : "Click to Reveal"}
+                          </span>
+                          <span className={`material-symbols-outlined text-[13px] text-[#8fa1a1] group-hover:text-[#a8bcbc] transition-all duration-200 ${expandedAnswers.has(i) ? "rotate-180" : ""}`}>
+                            expand_more
+                          </span>
+                        </button>
+                        {expandedAnswers.has(i) && (
+                          <div className="rounded-lg bg-[#0f0f0f] px-4 py-3.5 text-[12px] leading-relaxed text-[#acabaa]">
+                            {pq.answer}
+                          </div>
+                        )}
+                      </div>
                     </div>
                   ))}
                 </div>
