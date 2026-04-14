@@ -478,9 +478,9 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="flex min-h-screen bg-[#0e0e0e]">
+    <div className="flex h-screen overflow-hidden bg-[#0e0e0e]">
       <Sidebar />
-      <main className="ml-64 flex-1 flex flex-col">
+      <main className="ml-64 flex-1 flex flex-col overflow-y-auto">
         <header className="flex flex-col pt-8 pb-6 px-12 max-w-screen-2xl bg-transparent">
           <div className="flex justify-between items-end">
             <div className="space-y-2">
