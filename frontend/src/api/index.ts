@@ -121,6 +121,20 @@ export async function completeStudyTask(taskId: number): Promise<{ task_id: numb
   return response.json();
 }
 
+export async function reopenStudyTask(taskId: number): Promise<{ task_id: number; completed: boolean }> {
+  const response = await fetch(`${API_BASE_URL}/study-progress/tasks/${taskId}/complete`, {
+    method: "DELETE",
+    headers: buildAuthHeaders(),
+  });
+
+  if (!response.ok) {
+    const text = await response.text();
+    throw new Error(text || `Failed to reopen study task (status ${response.status})`);
+  }
+
+  return response.json();
+}
+
 export async function deleteCourse(courseId: number): Promise<void> {
   const response = await fetch(`${API_BASE_URL}/courses/${courseId}`, {
     method: "DELETE",
