@@ -63,33 +63,47 @@ class SenseiAgent:
                 "practice_questions": self._fallback_practice(request.topic),
             }
 
-        prompt = f"""You are Sensei AI, an educational assistant.
+        prompt = f"""You are Sensei AI, a focused study assistant. A student needs exam-ready notes on the following:
+
 Topic: {request.topic}
 Course: {request.course_name}
 
-Return raw valid JSON only. No markdown, no explanation.
+Your job is to produce structured study notes that cover EVERY subtopic a student needs for this topic — ordered from foundational to advanced, so each concept builds naturally on the last. Think of it like a smart friend explaining the topic from scratch in the right order.
+
+Return raw valid JSON only. No markdown, no explanation outside the JSON.
 
 {{
   "concepts": [
     {{
-      "title": "concept name",
-      "definition": "1-2 sentence plain language definition a student can immediately understand",
-      "key_points": ["fact or rule", "fact or rule", "fact or rule"],
-      "example": "one concrete real-world or subject-specific example"
+      "title": "subtopic name (short, clear)",
+      "definition": "2-3 sentence explanation. If this concept builds on a previous one, briefly reference it (e.g. 'Building on tables from above...'). Plain language a student can grasp immediately.",
+      "key_points": [
+        "exam-specific fact, rule, or gotcha — not generic filler",
+        "another point a student must know for exams",
+        "common mistake or trick question around this concept",
+        "how this differs from a similar concept if relevant",
+        "one more essential point"
+      ],
+      "example": "A concrete, subject-specific example that makes this real. For abstract concepts, use a scenario. For syntax-heavy topics, describe what the code does in plain English.",
+      "code_example": "Only include this field if the concept has syntax, commands, queries, or formulas. Write clean, minimal code that demonstrates the concept. Omit this field entirely if not applicable."
     }}
   ],
   "practice_questions": [
     {{
-      "question": "the question",
-      "answer": "thorough answer that explains the reasoning, not just the answer"
+      "question": "question text",
+      "answer": "thorough answer explaining the reasoning, not just the answer. Include why wrong answers are wrong if it's a tricky one."
     }}
   ]
 }}
 
-Cover all concepts within {request.topic} that a student needs to be exam-ready. Skip anything advanced or niche that wouldn't appear in a typical exam. Keep each concept focused and essential.
-For each concept provide a clear definition, 3-5 key points, and one concrete example.
-For practice questions cover the full range of what could be tested: definition, application, comparison, and common mistake types.
-Return only the JSON object."""
+Rules:
+- Cover ALL subtopics within {request.topic} needed for a typical exam — aim for 8-14 concepts
+- Order them so foundational concepts come first and each one logically leads to the next
+- Key points must be exam-specific and actionable, never generic filler like "this is important to know"
+- Include code_example for any concept involving syntax, queries, commands, formulas, or code
+- The LAST concept must always be titled "Exam Focus" and list exactly what to prioritize, common exam traps, and what's most likely to be tested
+- Practice questions should cover: definitions, application, comparison between concepts, and common mistake types
+- Return only the JSON object, nothing else"""
 
         try:
             response = self.llm.invoke(prompt)
