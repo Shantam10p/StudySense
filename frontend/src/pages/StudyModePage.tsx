@@ -14,7 +14,7 @@ type StudyModeLocationState = {
   senseiContent?: SenseiContentResponse;
 };
 
-const TABS = ["Concepts", "Practice Questions", "Chat"] as const;
+const TABS = ["Notes", "Practice Questions", "Chat"] as const;
 type Tab = (typeof TABS)[number];
 
 function formatTime(totalSeconds: number) {
@@ -42,7 +42,7 @@ export default function StudyModePage() {
   const topic = useMemo(() => deriveTopicFromTitle(session?.title ?? "this topic"), [session?.title]);
 
   // timer state
-  const [activeTab, setActiveTab] = useState<Tab>("Concepts");
+  const [activeTab, setActiveTab] = useState<Tab>("Notes");
   const [isRunning, setIsRunning] = useState(true);
   const [timeLeft, setTimeLeft] = useState(session ? session.duration_minutes * 60 : 0);
   const [timerReady, setTimerReady] = useState(false);
@@ -356,8 +356,8 @@ export default function StudyModePage() {
                 </div>
               )}
 
-              {/* concepts tab */}
-              {activeTab === "Concepts" && !contentLoading && !contentError && (
+              {/* notes tab */}
+              {activeTab === "Notes" && !contentLoading && !contentError && (
                 <div className="space-y-4">
                   {concepts.map((concept, i) => (
                     <div key={i} className="rounded-2xl bg-[#1b1c1c] p-5 text-sm leading-relaxed">
