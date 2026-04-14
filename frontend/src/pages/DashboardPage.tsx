@@ -514,8 +514,13 @@ export default function DashboardPage() {
                   type="text"
                 />
               </div>
-              <div className="w-12 h-12 rounded-full bg-[#252626] overflow-hidden flex items-center justify-center cursor-pointer hover:bg-[#2d2e2e] transition-colors">
-                <span className="material-symbols-outlined text-[#cdc0ec] text-2xl">account_circle</span>
+              <div className="relative group">
+                <div className="w-12 h-12 rounded-full bg-[#252626] overflow-hidden flex items-center justify-center cursor-pointer hover:bg-[#2d2e2e] transition-colors">
+                  <span className="material-symbols-outlined text-[#cdc0ec] text-2xl">account_circle</span>
+                </div>
+                <span className="pointer-events-none absolute bottom-full mb-2 right-0 whitespace-nowrap rounded-md bg-[#1a1a1a] border border-[#2e2e2e] px-2.5 py-1 text-xs text-[#acabaa] opacity-0 group-hover:opacity-100 transition-opacity duration-150 shadow-lg">
+                  User profile coming soon
+                </span>
               </div>
             </div>
           </div>
