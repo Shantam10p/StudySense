@@ -18,6 +18,16 @@ def complete_study_task(task_id: int, current_user: dict = Depends(get_current_u
         raise HTTPException(status_code=400, detail=str(exc)) from exc
 
 
+@router.delete("/tasks/{task_id}/complete", response_model=StudyTaskCompletionResponse)
+def reopen_study_task(task_id: int, current_user: dict = Depends(get_current_user)):
+    try:
+        return study_progress_service.reopen_task(task_id, current_user["id"])
+    except ValueError as exc:
+        if str(exc) == "Task not found":
+            raise HTTPException(status_code=404, detail=str(exc)) from exc
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
 @router.get("/stats", response_model=DashboardStatsResponse)
 def get_dashboard_stats(current_user: dict = Depends(get_current_user)):
     return study_progress_service.get_dashboard_stats(current_user["id"])

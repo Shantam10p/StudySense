@@ -31,6 +31,26 @@ class StudyProgressService:
         finally:
             conn.close()
 
+    def reopen_task(self, task_id: int, user_id: int) -> StudyTaskCompletionResponse:
+        conn = get_connection()
+        try:
+            if not self._task_belongs_to_user(conn, task_id, user_id):
+                raise ValueError("Task not found")
+
+            cursor = conn.cursor()
+            try:
+                cursor.execute(
+                    "DELETE FROM study_task_completions WHERE user_id = %s AND study_task_id = %s",
+                    (user_id, task_id),
+                )
+                conn.commit()
+            finally:
+                cursor.close()
+
+            return StudyTaskCompletionResponse(task_id=task_id, completed=False)
+        finally:
+            conn.close()
+
     def get_dashboard_stats(self, user_id: int) -> DashboardStatsResponse:
         conn = get_connection()
         try:
