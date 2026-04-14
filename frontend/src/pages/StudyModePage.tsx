@@ -358,28 +358,60 @@ export default function StudyModePage() {
 
               {/* notes tab */}
               {activeTab === "Notes" && !contentLoading && !contentError && (
-                <div className="space-y-4">
+                <div className="space-y-5">
                   {concepts.map((concept, i) => (
-                    <div key={i} className="rounded-2xl bg-[#1b1c1c] p-5 text-sm leading-relaxed">
-                      <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-[#cdc0ec]">
-                        {concept.title}
+                    <div
+                      key={i}
+                      className="rounded-xl border-l-[3px] border-l-[#cdc0ec]/35 bg-[#161616] border border-[#202020] px-5 py-6"
+                    >
+                      {/* title row */}
+                      <div className="flex items-center gap-2.5 mb-4">
+                        <span className="text-[10px] font-mono font-bold tabular-nums text-[#cdc0ec]/40">
+                          {String(i + 1).padStart(2, "0")}
+                        </span>
+                        <h4 className="text-[13px] font-semibold leading-snug text-[#e7e5e5]">
+                          {concept.title}
+                        </h4>
+                      </div>
+
+                      {/* definition */}
+                      <p className="text-[13px] leading-relaxed text-[#acabaa] mb-5">
+                        {concept.definition}
                       </p>
-                      <p className="mb-3 text-[#e7e5e5]">{concept.definition}</p>
-                      <ul className="mb-3 space-y-1">
-                        {concept.key_points.map((point, j) => (
-                          <li key={j} className="flex items-start gap-2 text-[#acabaa]">
-                            <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-[#cdc0ec]/50" />
-                            {point}
-                          </li>
-                        ))}
-                      </ul>
-                      <p className="border-t border-[#3a3a3a] pt-3 text-xs text-[#767575]">
-                        <span className="text-[#8fa1a1]">Example: </span>{concept.example}
-                      </p>
+
+                      {/* key points */}
+                      <div className="mb-5">
+                        <p className="text-[9px] font-bold uppercase tracking-[0.15em] mb-3 text-[#cdc0ec]/40">
+                          Key Points
+                        </p>
+                        <ul className="space-y-2.5">
+                          {concept.key_points.map((point, j) => (
+                            <li key={j} className="flex items-start gap-2.5 text-[12px] text-[#e7e5e5] leading-relaxed">
+                              <span className="mt-[3px] shrink-0 text-[10px] font-bold text-[#cdc0ec]/60">›</span>
+                              {point}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+
+                      {/* example */}
+                      <div className="rounded-lg bg-[#0f0f0f] px-4 py-3.5 text-[12px] leading-relaxed text-[#8fa1a1]">
+                        <span className="text-[9px] font-bold uppercase tracking-[0.12em] mr-2 text-[#cdc0ec]/40">
+                          Example
+                        </span>
+                        {concept.example}
+                      </div>
+
+                      {/* code block */}
                       {concept.code_example && (
-                        <pre className="mt-3 overflow-x-auto rounded-lg bg-[#111111] border border-[#2a2a2a] px-4 py-3 text-xs text-[#a8d8a8] font-mono leading-relaxed whitespace-pre">
-                          {concept.code_example}
-                        </pre>
+                        <div className="mt-4">
+                          <p className="text-[9px] font-bold uppercase tracking-[0.15em] mb-2 text-[#7fd29a]/50">
+                            Code Example
+                          </p>
+                          <pre className="overflow-x-auto rounded-lg bg-[#0a0a0a] border border-[#1e1e1e] px-4 py-3.5 text-[11px] text-[#7fd29a] font-mono leading-relaxed whitespace-pre">
+                            {concept.code_example}
+                          </pre>
+                        </div>
                       )}
                     </div>
                   ))}
