@@ -376,6 +376,11 @@ export default function StudyModePage() {
                       <p className="border-t border-[#3a3a3a] pt-3 text-xs text-[#767575]">
                         <span className="text-[#8fa1a1]">Example: </span>{concept.example}
                       </p>
+                      {concept.code_example && (
+                        <pre className="mt-3 overflow-x-auto rounded-lg bg-[#111111] border border-[#2a2a2a] px-4 py-3 text-xs text-[#a8d8a8] font-mono leading-relaxed whitespace-pre">
+                          {concept.code_example}
+                        </pre>
+                      )}
                     </div>
                   ))}
                 </div>
