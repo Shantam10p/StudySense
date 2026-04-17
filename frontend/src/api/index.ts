@@ -7,6 +7,7 @@ import type {
   PlannerGenerateResponse,
 } from "../types/planner";
 import type {
+  ChatHistoryResponse,
   SenseiChatMessage,
   SenseiContentResponse,
 } from "../types/sensei";
@@ -180,6 +181,33 @@ export async function fetchSenseiContent(payload: {
   }
 
   return response.json();
+}
+
+export async function fetchChatHistory(taskId: number): Promise<ChatHistoryResponse> {
+  const response = await fetch(`${API_BASE_URL}/chat/history/${taskId}`, {
+    headers: buildAuthHeaders(),
+  });
+  if (!response.ok) throw new Error(`Failed to fetch chat history (status ${response.status})`);
+  return response.json();
+}
+
+export async function saveChatMessage(payload: {
+  task_id: number;
+  role: string;
+  content: string;
+}): Promise<void> {
+  await fetch(`${API_BASE_URL}/chat/history/message`, {
+    method: "POST",
+    headers: buildAuthHeaders(true),
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function deleteChatHistory(taskId: number): Promise<void> {
+  await fetch(`${API_BASE_URL}/chat/history/${taskId}`, {
+    method: "DELETE",
+    headers: buildAuthHeaders(),
+  });
 }
 
 export async function sendSenseiMessage(payload: {

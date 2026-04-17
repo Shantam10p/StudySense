@@ -21,3 +21,14 @@ export type SenseiChatMessage = {
   role: "user" | "assistant";
   content: string;
 };
+
+export type ChatHistoryMessage = {
+  id: number;
+  role: "user" | "assistant";
+  content: string;
+};
+
+export type ChatHistoryResponse = {
+  task_id: number;
+  messages: ChatHistoryMessage[];
+};
