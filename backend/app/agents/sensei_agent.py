@@ -118,6 +118,17 @@ Rules:
 
         return {**state, "concepts": concepts, "practice_questions": practice_questions}
 
+    def _summarize(self, messages: list) -> str:
+        prompt = f"Summarize this tutoring conversation in 3-5 sentences, capturing the key topics and conclusions discussed:\n\n"
+        for msg in messages:
+            role = "Student" if msg.role == "user" else "Sensei"
+            prompt += f"{role}: {msg.content}\n"
+        try:
+            response = self.llm.invoke(prompt)
+            return response.content if isinstance(response.content, str) else ""
+        except Exception:
+            return ""
+
     def _generate_reply(self, state: ChatAgentState) -> ChatAgentState:
         request = state["request"]
 
@@ -129,12 +140,22 @@ Topic: {request.topic}
 Course: {request.course_name}
 Keep answers focused, educational, and concise. If asked something off-topic, gently redirect to {request.topic}.""")
 
+        WINDOW = 10
+        history = request.history
         messages = [system]
-        for msg in request.history:
-            if msg.role == "user":
-                messages.append(HumanMessage(content=msg.content))
-            else:
-                messages.append(AIMessage(content=msg.content))
+
+        if len(history) > WINDOW:
+            old = history[:-WINDOW]
+            window = history[-WINDOW:]
+            summary = self._summarize(old)
+            if summary:
+                messages.append(AIMessage(content=f"[Earlier in this session]: {summary}"))
+            for msg in window:
+                messages.append(HumanMessage(content=msg.content) if msg.role == "user" else AIMessage(content=msg.content))
+        else:
+            for msg in history:
+                messages.append(HumanMessage(content=msg.content) if msg.role == "user" else AIMessage(content=msg.content))
+
         messages.append(HumanMessage(content=request.message))
 
         try:
