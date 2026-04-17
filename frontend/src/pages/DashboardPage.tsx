@@ -660,16 +660,7 @@ export default function DashboardPage() {
                               <span className="material-symbols-outlined text-[13px]">restart_alt</span>
                               Reopen session
                             </button>
-                          ) : (
-                            <button
-                              onClick={() => handleToggleComplete(session.task.id, false)}
-                              disabled={togglingTaskId === session.task.id || senseiLoadingTaskId !== null}
-                              className="absolute top-3 right-6 flex items-center gap-1 text-[10px] font-medium text-[#767575] hover:text-[#6dbf8a] transition-colors disabled:opacity-40"
-                            >
-                              <span className="material-symbols-outlined text-[13px]">check_circle</span>
-                              Mark as completed
-                            </button>
-                          )
+                          ) : null
                         )}
 
                         {/* Right: primary action — slightly below center */}
