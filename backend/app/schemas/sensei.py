@@ -45,3 +45,20 @@ class SenseiChatRequest(BaseModel):
 
 class SenseiChatResponse(BaseModel):
     reply: str
+
+
+# Chat History
+
+class ChatHistoryMessage(BaseModel):
+    id: int
+    role: str
+    content: str
+
+class ChatHistoryResponse(BaseModel):
+    task_id: int
+    messages: List[ChatHistoryMessage]
+
+class SaveMessageRequest(BaseModel):
+    task_id: int
+    role: str
+    content: str
