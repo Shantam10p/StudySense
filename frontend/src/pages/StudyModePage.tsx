@@ -414,7 +414,7 @@ export default function StudyModePage() {
                       {concept.code_example && (
                         <div className="mt-4">
                           <p className="text-[10px] font-bold uppercase tracking-[0.15em] mb-2 text-[#7fd29a]">
-                            Code Example
+                            Python
                           </p>
                           <pre className="overflow-x-auto rounded-lg bg-[#0a0a0a] border border-[#1e1e1e] px-4 py-3.5 text-[11px] text-[#7fd29a] font-mono leading-relaxed whitespace-pre">
                             {concept.code_example}

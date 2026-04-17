@@ -85,7 +85,7 @@ Return raw valid JSON only. No markdown, no explanation outside the JSON.
         "one more essential point"
       ],
       "example": "A concrete, subject-specific example that makes this real. For abstract concepts, use a scenario. For syntax-heavy topics, describe what the code does in plain English.",
-      "code_example": "Only include this field if the concept has syntax, commands, queries, or formulas. Write clean, minimal code that demonstrates the concept. Omit this field entirely if not applicable."
+      "code_example": "Only include this field if the concept has syntax, commands, queries, or formulas. Write clean Python code that demonstrates the concept. Use \\n for newlines to keep it readable. Omit this field entirely if not applicable."
     }}
   ],
   "practice_questions": [
@@ -100,7 +100,7 @@ Rules:
 - Cover ALL subtopics within {request.topic} — aim for 8-14 concepts
 - Order concepts so foundational ones come first and each logically leads to the next
 - Key points must be specific and actionable, never generic filler like "this is important to know"
-- Include code_example for any concept involving syntax, queries, commands, formulas, or code
+- Include code_example for any concept involving syntax, queries, commands, formulas, or code — always in Python
 - Practice questions must be a mix of: short direct conceptual questions ("What is X?", "What is the difference between X and Y?") AND hands-on tasks ("Write a query to...", "What does this code output?", "Fix this query"). Aim for 8-10 questions total, roughly half conceptual half practical. Keep questions short and direct — no long essay prompts.
 - Return only the JSON object, nothing else"""
 
