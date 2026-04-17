@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
-import { completeStudyTask, fetchSenseiContent, sendSenseiMessage } from "../api";
+import { completeStudyTask, deleteChatHistory, fetchChatHistory, fetchSenseiContent, saveChatMessage, sendSenseiMessage } from "../api";
 import senseiLogo from "../assets/sensei_face.png";
 import type { PlannerStudyTask } from "../types/planner";
 import type { SenseiChatMessage, SenseiConceptItem, SenseiContentResponse, SenseiPracticeQuestion } from "../types/sensei";
@@ -138,28 +138,26 @@ export default function StudyModePage() {
       content: `Hi ${userName}! I'm your Sensei. Ask me anything about ${topic} and I'll help you understand it.`,
     };
 
-    if (state.senseiContent) {
-      setConcepts(state.senseiContent.concepts);
-      setPracticeQuestions(state.senseiContent.practice_questions);
-      setChatHistory([welcome]);
-      setContentLoading(false);
-      return;
-    }
-
     let cancelled = false;
     setContentLoading(true);
     setContentError(null);
 
-    fetchSenseiContent({
-      topic,
-      course_name: state.courseName,
-      course_id: state.courseId,
-    })
-      .then((data) => {
+    const contentPromise = state.senseiContent
+      ? Promise.resolve(state.senseiContent)
+      : fetchSenseiContent({ topic, course_name: state.courseName, course_id: state.courseId });
+
+    Promise.all([contentPromise, fetchChatHistory(session.id)])
+      .then(([contentData, historyData]) => {
         if (cancelled) return;
-        setConcepts(data.concepts);
-        setPracticeQuestions(data.practice_questions);
-        setChatHistory([welcome]);
+        setConcepts(contentData.concepts);
+        setPracticeQuestions(contentData.practice_questions);
+        // if history exists load it, otherwise start fresh with welcome
+        if (historyData.messages.length > 0) {
+          setChatHistory(historyData.messages.map(m => ({ role: m.role as "user" | "assistant", content: m.content })));
+        } else {
+          setChatHistory([welcome]);
+          saveChatMessage({ task_id: session.id, role: "assistant", content: welcome.content });
+        }
       })
       .catch(() => {
         if (cancelled) return;
@@ -195,7 +193,7 @@ export default function StudyModePage() {
 
   const handleSendMessage = async () => {
     const trimmed = chatInput.trim();
-    if (!trimmed || chatSending || !state) return;
+    if (!trimmed || chatSending || !state || !session) return;
 
     const userMessage: SenseiChatMessage = { role: "user", content: trimmed };
     const updatedHistory = [...chatHistory, userMessage];
@@ -204,6 +202,8 @@ export default function StudyModePage() {
     setChatSending(true);
     setChatError(null);
 
+    saveChatMessage({ task_id: session.id, role: "user", content: trimmed });
+
     try {
       const response = await sendSenseiMessage({
         topic,
@@ -211,13 +211,26 @@ export default function StudyModePage() {
         history: chatHistory,
         message: trimmed,
       });
-      setChatHistory([...updatedHistory, { role: "assistant", content: response.reply }]);
+      const assistantMessage: SenseiChatMessage = { role: "assistant", content: response.reply };
+      setChatHistory([...updatedHistory, assistantMessage]);
+      saveChatMessage({ task_id: session.id, role: "assistant", content: response.reply });
     } catch {
       setChatError("Sensei couldn't respond. Please try again.");
       setChatHistory(chatHistory);
     } finally {
       setChatSending(false);
     }
+  };
+
+  const handleClearChat = async () => {
+    if (!session) return;
+    const welcome: SenseiChatMessage = {
+      role: "assistant",
+      content: `Hi ${userName}! I'm your Sensei. Ask me anything about ${topic} and I'll help you understand it.`,
+    };
+    await deleteChatHistory(session.id);
+    setChatHistory([welcome]);
+    saveChatMessage({ task_id: session.id, role: "assistant", content: welcome.content });
   };
 
   const handleChatKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -313,16 +326,28 @@ export default function StudyModePage() {
 
             {/* header */}
             <div className="shrink-0 border-b border-[#484848]/20 px-6 py-6">
-              <div className="flex items-center gap-4">
-                <div className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-2xl bg-[#4b4166]/25">
-                  <img src={senseiLogo} alt="Sensei" className="h-11 w-11 object-contain" />
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <div className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-2xl bg-[#4b4166]/25">
+                    <img src={senseiLogo} alt="Sensei" className="h-11 w-11 object-contain" />
+                  </div>
+                  <div>
+                    <p className="text-base font-semibold text-[#e7e5e5]">Sensei AI</p>
+                    <p className="text-xs text-[#8fa1a1]">
+                      {contentLoading ? "Loading topic guidance..." : `Ready for ${topic}`}
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-base font-semibold text-[#e7e5e5]">Sensei AI</p>
-                  <p className="text-xs text-[#8fa1a1]">
-                    {contentLoading ? "Loading topic guidance..." : `Ready for ${topic}`}
-                  </p>
-                </div>
+                {activeTab === "Chat" && (
+                  <button
+                    onClick={handleClearChat}
+                    className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs text-[#ec7c8a] hover:bg-[#ec7c8a]/10 transition-colors"
+                    title="Erase conversation"
+                  >
+                    <span className="material-symbols-outlined text-base">delete</span>
+                    Erase
+                  </button>
+                )}
               </div>
             </div>
 
