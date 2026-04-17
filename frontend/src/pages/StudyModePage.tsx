@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import ReactMarkdown from "react-markdown";
 import { useLocation, useNavigate } from "react-router-dom";
 
 import { completeStudyTask, deleteChatHistory, fetchChatHistory, fetchSenseiContent, saveChatMessage, sendSenseiMessage } from "../api";
@@ -506,7 +507,7 @@ export default function StudyModePage() {
                           : "ml-auto rounded-tr-sm bg-[#1b1c1c] text-[#e7e5e5]"
                       }`}
                     >
-                      {msg.content}
+                      {msg.role === "assistant" ? <ReactMarkdown>{msg.content}</ReactMarkdown> : msg.content}
                     </div>
                   ))}
                   {chatSending && (
