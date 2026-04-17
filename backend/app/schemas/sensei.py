@@ -6,7 +6,7 @@ class ConceptItem(BaseModel):
     title: str
     definition: str
     key_points: List[str]
-    example: str
+    example: Optional[str] = None
     code_example: Optional[str] = None
 
 
