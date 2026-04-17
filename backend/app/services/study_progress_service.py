@@ -145,7 +145,10 @@ class StudyProgressService:
             return 0
 
         completion_date_set = set(completion_dates)
-        current_day = date.today()
+        today = date.today()
+
+        # streak only breaks if the entire previous day passed with no study
+        current_day = today if today in completion_date_set else today - timedelta(days=1)
         streak = 0
 
         while current_day in completion_date_set:
