@@ -507,7 +507,21 @@ export default function StudyModePage() {
                           : "ml-auto rounded-tr-sm bg-[#1b1c1c] text-[#e7e5e5]"
                       }`}
                     >
-                      {msg.role === "assistant" ? <ReactMarkdown>{msg.content}</ReactMarkdown> : msg.content}
+                      {msg.role === "assistant" ? (
+                        <ReactMarkdown
+                          components={{
+                            p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
+                            ul: ({ children }) => <ul className="list-disc pl-4 mb-2 space-y-1">{children}</ul>,
+                            ol: ({ children }) => <ol className="list-decimal pl-4 mb-2 space-y-1">{children}</ol>,
+                            li: ({ children }) => <li className="leading-relaxed">{children}</li>,
+                            code: ({ children }) => <code className="bg-[#1b1c1c] text-[#cdc0ec] px-1 py-0.5 rounded text-xs font-mono">{children}</code>,
+                            pre: ({ children }) => <pre className="bg-[#1b1c1c] text-[#e7e5e5] p-3 rounded-lg text-xs font-mono overflow-x-auto mb-2">{children}</pre>,
+                            strong: ({ children }) => <strong className="font-semibold text-[#e7e5e5]">{children}</strong>,
+                          }}
+                        >
+                          {msg.content}
+                        </ReactMarkdown>
+                      ) : msg.content}
                     </div>
                   ))}
                   {chatSending && (
