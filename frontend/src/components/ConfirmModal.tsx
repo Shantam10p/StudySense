@@ -5,6 +5,7 @@ type ConfirmModalProps = {
   message: string;
   confirmLabel?: string;
   cancelLabel?: string;
+  loading?: boolean;
   onConfirm: () => void;
   onCancel: () => void;
 };
@@ -14,6 +15,7 @@ export function ConfirmModal({
   message,
   confirmLabel = "Confirm",
   cancelLabel = "Cancel",
+  loading = false,
   onConfirm,
   onCancel,
 }: ConfirmModalProps) {
@@ -36,15 +38,18 @@ export function ConfirmModal({
         <div className="flex justify-end gap-3">
           <button
             onClick={onCancel}
-            className="px-5 py-2.5 rounded-lg text-sm font-medium text-[#acabaa] bg-[#1f2020] border border-[#3a3a3a] hover:text-[#e7e5e5] hover:border-[#4a4a4a] transition-colors"
+            disabled={loading}
+            className="px-5 py-2.5 rounded-lg text-sm font-medium text-[#acabaa] bg-[#1f2020] border border-[#3a3a3a] hover:text-[#e7e5e5] hover:border-[#4a4a4a] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
           >
             {cancelLabel}
           </button>
           <button
             onClick={onConfirm}
-            className="px-5 py-2.5 rounded-lg text-sm font-semibold text-[#1a1726] bg-[#cdc0ec] hover:bg-[#bfb2de] transition-colors"
+            disabled={loading}
+            className="px-5 py-2.5 rounded-lg text-sm font-semibold text-[#1a1726] bg-[#cdc0ec] hover:bg-[#bfb2de] transition-colors disabled:opacity-60 disabled:cursor-not-allowed flex items-center gap-2"
           >
-            {confirmLabel}
+            {loading && <span className="material-symbols-outlined text-sm animate-spin">progress_activity</span>}
+            {loading ? "Deleting..." : confirmLabel}
           </button>
         </div>
       </div>

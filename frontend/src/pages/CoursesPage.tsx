@@ -17,6 +17,7 @@ export default function CoursesPage() {
   const [error, setError] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<number | null>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     async function loadCourses() {
@@ -110,8 +111,10 @@ export default function CoursesPage() {
           confirmLabel="Delete"
           cancelLabel="Cancel"
           onCancel={() => setDeletingId(null)}
+          loading={isDeleting}
           onConfirm={async () => {
-            if (deletingId === null) return;
+            if (deletingId === null || isDeleting) return;
+            setIsDeleting(true);
             try {
               setDeleteError(null);
               await deleteCourse(deletingId);
@@ -120,6 +123,7 @@ export default function CoursesPage() {
               setDeleteError(err?.message || "Failed to delete course");
             } finally {
               setDeletingId(null);
+              setIsDeleting(false);
             }
           }}
         />
