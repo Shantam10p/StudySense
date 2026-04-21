@@ -85,7 +85,7 @@ Step 2 — Session design:
 - Vary durations per topic — each topic should reflect its own difficulty.
 - Review sessions are earned, not default. Only assign them if the budget comfortably allows after guaranteeing every topic has at least 1 study session. Default review_sessions to 0.
 
-Step 3 — Ordering: Set learning_order so prerequisite/foundational topics come first.
+Step 3 — Ordering: Set learning_order based purely on prerequisite dependency — what must be understood BEFORE something else can be learned. This has nothing to do with difficulty or priority. A topic that is easy but foundational (e.g. Arrays) must still come before a hard topic that depends on it (e.g. Linked Lists, Trees, Graphs). Ignore difficulty and priority when deciding order. learning_order 1 = must be studied first.
 
 Return JSON matching this schema:
 {{"topics":[{{"name":"topic name","priority":"high|medium|low","difficulty":"easy|medium|hard","total_minutes":"<int>","session_count":"<int>","review_sessions":"<int: 0 if not needed>","study_session_minutes":"<int: varies per topic>","review_session_minutes":"<int: 0 if no reviews>","learning_order":"<int>"}}]}}

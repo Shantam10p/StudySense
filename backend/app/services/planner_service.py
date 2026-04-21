@@ -279,13 +279,8 @@ class PlannerService:
         day_minutes_used = [0] * n_days
         unscheduled: list[dict] = []
 
-        priority_order = {"high": 0, "medium": 1, "low": 2}
-
-        def _session_sort_key(session: dict) -> tuple[int, int]:
-            return (
-                priority_order.get(str(session.get("priority", "medium")).lower(), 1),
-                int(session.get("learning_order", 9999)),
-            )
+        def _session_sort_key(session: dict) -> int:
+            return int(session.get("learning_order", 9999))
 
         study_sessions = sorted(
             [s for s in sessions if s.get("task_type") != "review"],
