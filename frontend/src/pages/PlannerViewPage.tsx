@@ -99,7 +99,7 @@ export default function PlannerViewPage() {
                 </div>
               </div>
               <button
-                onClick={() => navigate("/")}
+                onClick={() => navigate("/dashboard")}
                 className="shrink-0 flex items-center gap-1.5 px-4 py-2 bg-[#6db8d4]/15 hover:bg-[#6db8d4]/25 text-[#6db8d4] rounded-lg text-sm font-semibold transition-colors"
               >
                 Go to Dashboard
