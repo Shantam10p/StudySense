@@ -1,5 +1,6 @@
 // src/App.tsx
-import { Navigate, Route, Routes } from "react-router-dom";
+import { useEffect } from "react";
+import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 
 import CoursesPage from "./pages/CoursesPage";
 import DashboardPage from "./pages/DashboardPage";
@@ -10,9 +11,24 @@ import ProgressPage from "./pages/ProgressPage";
 import SignupPage from "./pages/SignupPage";
 import StudyModePage from "./pages/StudyModePage";
 
+function ScrollToTop() {
+  const { pathname } = useLocation();
+  useEffect(() => {
+    if ("scrollRestoration" in window.history) {
+      window.history.scrollRestoration = "manual";
+    }
+    window.scrollTo({ top: 0, left: 0, behavior: "instant" as ScrollBehavior });
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+  }, [pathname]);
+  return null;
+}
+
 function App() {
   return (
-    <Routes>
+    <>
+      <ScrollToTop />
+      <Routes>
       <Route path="/" element={<LoginPage />} />
 
       <Route path="/login" element={<Navigate to="/" replace />} />
@@ -25,6 +41,7 @@ function App() {
       <Route path="/study-mode" element={<StudyModePage />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
+    </>
   );
 }
 
