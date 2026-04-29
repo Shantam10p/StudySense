@@ -532,24 +532,26 @@ export default function DashboardPage() {
       >
         {/* Mobile layout */}
         <div className="md:hidden p-4">
-          {/* Course badge */}
-          <div className="flex items-center gap-1.5 mb-2">
-            <span className={`w-1.5 h-1.5 rounded-full ${courseStyle.dot}`} />
-            <span className={`text-[10px] font-bold uppercase tracking-widest ${courseStyle.text}`}>
-              {session.courseName}
-            </span>
-          </div>
-          {/* Title */}
-          <h4 className="text-base font-medium text-[#e7e5e5] mb-1 leading-snug pr-16">{session.task.title}</h4>
-          <p className="text-xs text-[#acabaa] mb-4">
-            {session.task.task_type} • {session.task.duration_minutes}m
-            {showDate && sessionDate && (
-              <>{" • "}<span className="text-[#8fa1a1] font-medium">{sessionDate}</span></>
-            )}
-          </p>
-          {/* Action row */}
-          <div className="flex items-center justify-between">
-            {!isLoading && isCompleted ? (
+          {/* Top row: course badge + action */}
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-1.5">
+              <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${courseStyle.dot}`} />
+              <span className={`text-[10px] font-bold uppercase tracking-widest ${courseStyle.text}`}>
+                {session.courseName}
+              </span>
+            </div>
+
+            {/* Inline action */}
+            {isLoading ? (
+              <div className="flex items-center gap-1.5 rounded-lg bg-[#4b4166]/30 px-2.5 py-1.5">
+                <span className="flex items-center gap-[3px]">
+                  {[0, 1, 2].map((i) => (
+                    <span key={i} className="h-[4px] w-[4px] rounded-full bg-[#cdc0ec] animate-bounce" style={{ animationDelay: `${i * 0.15}s` }} />
+                  ))}
+                </span>
+                <span className="text-xs text-[#cdc0ec]">Preparing</span>
+              </div>
+            ) : isCompleted ? (
               <button
                 onClick={() => handleToggleComplete(session.task.id, true)}
                 disabled={togglingTaskId === session.task.id}
@@ -558,36 +560,33 @@ export default function DashboardPage() {
                 <span className="material-symbols-outlined text-[13px]">restart_alt</span>
                 Reopen
               </button>
-            ) : <div />}
-
-            {isLoading ? (
-              <div className="flex items-center gap-2 rounded-lg bg-[#4b4166]/30 px-3 py-2">
-                <span className="flex items-center gap-[3px]">
-                  {[0, 1, 2].map((i) => (
-                    <span
-                      key={i}
-                      className="h-[4px] w-[4px] rounded-full bg-[#cdc0ec] animate-bounce"
-                      style={{ animationDelay: `${i * 0.15}s` }}
-                    />
-                  ))}
-                </span>
-                <span className="text-xs font-medium text-[#cdc0ec]">Preparing</span>
-              </div>
-            ) : isCompleted ? (
-              <span className="flex items-center gap-1.5 rounded-lg border border-[#3a3a3a] bg-[#131313] px-3 py-1.5 text-xs font-semibold text-[#8e8d8d]">
-                <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span>
-                Completed
-              </span>
             ) : (
               <button
                 onClick={() => handleStartSession(session)}
                 disabled={senseiLoadingTaskId !== null}
-                className="bg-[#cdc0ec] text-[#443b5f] px-4 py-2 rounded-lg font-semibold text-sm hover:brightness-110 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="bg-[#cdc0ec] text-[#443b5f] px-3.5 py-1.5 rounded-lg font-semibold text-sm hover:brightness-110 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
               >
                 {hasStartedSession ? "Continue" : "Start"}
               </button>
             )}
           </div>
+
+          {/* Title + meta */}
+          <h4 className="text-base font-medium text-[#e7e5e5] mb-1 leading-snug">{session.task.title}</h4>
+          <p className="text-xs text-[#acabaa]">
+            {session.task.task_type} • {session.task.duration_minutes}m
+            {showDate && sessionDate && (
+              <>{" • "}<span className="text-[#8fa1a1] font-medium">{sessionDate}</span></>
+            )}
+          </p>
+
+          {/* Completed badge */}
+          {isCompleted && !isLoading && (
+            <div className="mt-2.5 flex items-center gap-1.5 text-xs font-semibold text-[#8e8d8d]">
+              <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span>
+              Completed
+            </div>
+          )}
         </div>
 
         {/* Desktop layout */}
@@ -678,10 +677,10 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="flex h-screen overflow-hidden bg-[#0e0e0e]">
+    <div className="flex h-screen bg-[#0e0e0e] overflow-hidden">
       <Sidebar />
 
-      <main className="md:ml-64 flex-1 flex flex-col overflow-y-auto pb-16 md:pb-0">
+      <main className="md:ml-64 flex-1 flex flex-col overflow-y-auto overflow-x-hidden pb-16 md:pb-0 min-w-0">
 
         {/* ── Mobile top bar ──────────────────────────────── */}
         <header className="flex md:hidden items-center gap-3 px-4 pt-4 pb-3 sticky top-0 bg-[#0e0e0e] z-30">
@@ -734,19 +733,19 @@ export default function DashboardPage() {
         </section>
 
         {/* ── Mobile stat chips ──────────────────────────── */}
-        <section className="md:hidden -mx-0 px-4 py-4 overflow-x-auto flex gap-2.5 scrollbar-none">
+        <section className="md:hidden px-4 py-3 grid grid-cols-2 gap-2.5">
           {statChips.map((chip, i) => (
             <div
               key={i}
-              className="flex-none flex items-center gap-2 bg-[#131313] border border-[#2a2a2a] py-2.5 px-3.5 rounded-full"
+              className="flex items-center gap-2.5 bg-[#131313] border border-[#2a2a2a] py-2.5 px-3 rounded-xl"
             >
               <span
-                className={`material-symbols-outlined text-lg ${chip.iconColor}`}
+                className={`material-symbols-outlined text-lg shrink-0 ${chip.iconColor}`}
                 style={chip.fill ? { fontVariationSettings: "'FILL' 1" } : undefined}
               >
                 {chip.icon}
               </span>
-              <span className="text-xs font-medium whitespace-nowrap text-[#e7e5e5]">{chip.label}</span>
+              <span className="text-xs font-medium text-[#e7e5e5] truncate">{chip.label}</span>
             </div>
           ))}
         </section>
