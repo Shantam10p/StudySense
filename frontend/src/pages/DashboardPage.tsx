@@ -422,9 +422,9 @@ export default function DashboardPage() {
     return (
       <div className="flex min-h-screen bg-[#0e0e0e]">
         <Sidebar />
-        <main className="flex-1 md:ml-64 flex items-center justify-center">
+        <div className="fixed inset-0 md:ml-64 flex items-center justify-center">
           <Loader message="Loading dashboard..." size="lg" />
-        </main>
+        </div>
         <BottomNav />
       </div>
     );
@@ -677,10 +677,10 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="flex h-screen bg-[#0e0e0e] overflow-hidden">
+    <div className="flex min-h-screen bg-[#0e0e0e] overflow-x-hidden">
       <Sidebar />
 
-      <main className="md:ml-64 flex-1 flex flex-col overflow-y-auto overflow-x-hidden pb-16 md:pb-0 min-w-0">
+      <main className="md:ml-64 flex-1 flex flex-col overflow-x-hidden pb-24 md:pb-0 min-w-0">
 
         {/* ── Mobile top bar ──────────────────────────────── */}
         <header className="flex md:hidden items-center gap-3 px-4 pt-4 pb-3 sticky top-0 bg-[#0e0e0e] z-30">
@@ -765,7 +765,7 @@ export default function DashboardPage() {
         </div>
 
         {/* ── Main content grid ──────────────────────────── */}
-        <div className="px-4 md:px-12 pb-8 max-w-screen-2xl md:grid md:grid-cols-12 md:gap-6">
+        <div className="px-4 md:px-12 pb-6 md:pb-8 max-w-screen-2xl md:grid md:grid-cols-12 md:gap-6">
 
           {/* Left: stats + sessions */}
           <div className="md:col-span-8 space-y-4 md:space-y-6">
@@ -869,7 +869,7 @@ export default function DashboardPage() {
           </div>
 
           {/* Right: quote + upcoming — desktop sidebar / mobile collapsible */}
-          <div className="md:col-span-4 md:space-y-6 mt-6 md:mt-0">
+          <div className="md:col-span-4 md:space-y-6 mt-4 md:mt-0 mb-4 md:mb-0">
 
             {/* Quote card — desktop always, mobile hidden (not critical) */}
             <div className="hidden md:block bg-[#352d49]/55 backdrop-blur-md p-6 rounded-xl border-2 border-[#47395f] shadow-lg text-[#c9bbeb] relative overflow-hidden">

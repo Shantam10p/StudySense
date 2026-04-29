@@ -83,9 +83,9 @@ export default function ProgressPage() {
     return (
       <div className="flex min-h-screen bg-[#0e0e0e]">
         <Sidebar />
-        <main className="flex-1 md:ml-64 flex items-center justify-center">
+        <div className="fixed inset-0 md:ml-64 flex items-center justify-center">
           <Loader message="Loading progress..." size="lg" />
-        </main>
+        </div>
         <BottomNav />
       </div>
     );
