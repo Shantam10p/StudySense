@@ -15,6 +15,7 @@ app.add_middleware(
         "http://localhost:5173",
         "https://sensei-ai.vercel.app",
     ],
+    allow_origin_regex=r"https://sensei-.*\.vercel\.app",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
