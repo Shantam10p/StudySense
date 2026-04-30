@@ -284,46 +284,46 @@ export default function StudyModePage() {
 
       {/* Notes */}
       {activeTab === "Notes" && !contentLoading && !contentError && (
-        <div className="space-y-4">
+        <div className="space-y-4 md:space-y-5">
           {concepts.map((concept, i) => (
             <div
               key={i}
-              className="rounded-xl border-l-2 border-l-[#cdc0ec]/50 bg-[#161616] border border-[#202020] px-4 py-4"
+              className="rounded-xl border-l-2 md:border-l-[3px] border-l-[#cdc0ec]/50 md:border-l-[#cdc0ec]/35 bg-[#161616] border border-[#202020] px-4 py-4 md:px-5 md:py-6"
             >
-              <div className="flex items-center gap-2.5 mb-3">
-                <span className="text-[10px] font-mono font-bold text-[#cdc0ec]/50">
+              <div className="flex items-center gap-2.5 mb-3 md:mb-4">
+                <span className="text-[10px] md:text-[11px] font-mono font-bold tabular-nums text-[#cdc0ec]/50 md:text-[#cdc0ec]/70">
                   {String(i + 1).padStart(2, "0")}
                 </span>
-                <h4 className="text-[13px] font-semibold text-[#e7e5e5] leading-snug">
+                <h4 className="text-[13px] md:text-[14px] font-semibold text-[#e7e5e5] leading-snug">
                   {concept.title}
                 </h4>
               </div>
-              <p className="text-[12px] leading-relaxed text-[#acabaa] mb-3">{concept.definition}</p>
-              <div className="mb-3">
-                <p className="text-[9px] font-bold uppercase tracking-[0.18em] mb-2 text-[#cdc0ec]">
+              <p className="text-[12px] md:text-[13px] leading-relaxed text-[#acabaa] mb-3 md:mb-5">{concept.definition}</p>
+              <div className="mb-3 md:mb-5">
+                <p className="text-[9px] md:text-[10px] font-bold uppercase tracking-[0.18em] md:tracking-[0.15em] mb-2 md:mb-3 text-[#cdc0ec]">
                   Key Points
                 </p>
-                <ul className="space-y-1.5">
+                <ul className="space-y-1.5 md:space-y-2.5">
                   {concept.key_points.map((pt, j) => (
-                    <li key={j} className="flex items-start gap-2 text-[11px] text-[#e7e5e5] leading-relaxed">
-                      <span className="mt-[3px] shrink-0 text-[#cdc0ec] font-bold">›</span>
+                    <li key={j} className="flex items-start gap-2 md:gap-2.5 text-[11px] md:text-[12px] text-[#e7e5e5] leading-relaxed">
+                      <span className="mt-[3px] shrink-0 text-[#cdc0ec] font-bold md:text-[11px]">›</span>
                       {pt}
                     </li>
                   ))}
                 </ul>
               </div>
-              <div className="rounded-lg bg-[#0f0f0f] px-3 py-2.5 text-[11px] leading-relaxed text-[#8fa1a1]">
-                <span className="text-[9px] font-bold uppercase tracking-[0.12em] mr-1.5 text-[#767575]">
+              <div className="rounded-lg bg-[#0f0f0f] px-3 py-2.5 md:px-4 md:py-3.5 text-[11px] md:text-[12px] leading-relaxed text-[#8fa1a1]">
+                <span className="text-[9px] md:text-[10px] font-bold uppercase tracking-[0.12em] mr-1.5 md:mr-2 text-[#767575] md:text-[#8fa1a1]">
                   Example —
                 </span>
                 {concept.example}
               </div>
               {concept.code_example && (
-                <div className="mt-3">
-                  <p className="text-[9px] font-bold uppercase tracking-[0.18em] mb-1.5 text-[#7fd29a]">
-                    Code
+                <div className="mt-3 md:mt-4">
+                  <p className="text-[9px] md:text-[10px] font-bold uppercase tracking-[0.18em] md:tracking-[0.15em] mb-1.5 md:mb-2 text-[#7fd29a]">
+                    Code Example
                   </p>
-                  <pre className="overflow-x-auto rounded-lg bg-[#0a0a0a] border border-[#1e1e1e] px-3 py-2.5 text-[10px] text-[#7fd29a] font-mono leading-relaxed whitespace-pre">
+                  <pre className="overflow-x-auto rounded-lg bg-[#0a0a0a] border border-[#1e1e1e] px-3 py-2.5 md:px-4 md:py-3.5 text-[10px] md:text-[11px] text-[#7fd29a] font-mono leading-relaxed whitespace-pre">
                     {concept.code_example}
                   </pre>
                 </div>
@@ -335,17 +335,17 @@ export default function StudyModePage() {
 
       {/* Practice */}
       {activeTab === "Practice" && !contentLoading && !contentError && (
-        <div className="space-y-3">
+        <div className="space-y-3 md:space-y-5">
           {practiceQuestions.map((pq, i) => (
             <div
               key={i}
-              className="rounded-xl border-l-2 border-l-[#8fa1a1]/50 bg-[#161616] border border-[#202020] px-4 py-4"
+              className="rounded-xl border-l-2 md:border-l-[3px] border-l-[#8fa1a1]/50 md:border-l-[#8fa1a1]/40 bg-[#161616] border border-[#202020] px-4 py-4 md:px-5 md:py-6"
             >
-              <div className="flex items-start gap-2.5 mb-3">
-                <span className="text-[10px] font-mono font-bold text-[#8fa1a1]/50 mt-[2px] shrink-0">
+              <div className="flex items-start gap-2.5 mb-3 md:mb-5">
+                <span className="text-[10px] md:text-[11px] font-mono font-bold tabular-nums text-[#8fa1a1]/50 md:text-[#8fa1a1]/70 mt-[2px] shrink-0">
                   {String(i + 1).padStart(2, "0")}
                 </span>
-                <p className="text-[12px] font-semibold leading-relaxed text-[#e7e5e5]">{pq.question}</p>
+                <p className="text-[12px] md:text-[13px] font-semibold leading-relaxed text-[#e7e5e5]">{pq.question}</p>
               </div>
               <button
                 onClick={() =>
@@ -355,13 +355,13 @@ export default function StudyModePage() {
                     return next;
                   })
                 }
-                className="flex items-center gap-1.5 group"
+                className="flex items-center gap-1.5 mb-2.5 group"
               >
-                <span className="text-[9px] font-bold uppercase tracking-[0.15em] text-[#8fa1a1] group-hover:text-[#a8bcbc] transition-colors">
-                  {expandedAnswers.has(i) ? "Hide" : "Reveal Answer"}
+                <span className="text-[9px] md:text-[10px] font-bold uppercase tracking-[0.15em] text-[#8fa1a1] group-hover:text-[#a8bcbc] transition-colors">
+                  {expandedAnswers.has(i) ? "Hide Answer" : "Click to Reveal"}
                 </span>
                 <span
-                  className={`material-symbols-outlined text-[12px] text-[#8fa1a1] group-hover:text-[#a8bcbc] transition-transform duration-200 ${
+                  className={`material-symbols-outlined text-[12px] md:text-[13px] text-[#8fa1a1] group-hover:text-[#a8bcbc] transition-transform duration-200 ${
                     expandedAnswers.has(i) ? "rotate-180" : ""
                   }`}
                 >
@@ -369,7 +369,7 @@ export default function StudyModePage() {
                 </span>
               </button>
               {expandedAnswers.has(i) && (
-                <div className="mt-2.5 rounded-lg bg-[#0f0f0f] px-3 py-2.5 text-[11px] leading-relaxed text-[#acabaa]">
+                <div className="rounded-lg bg-[#0f0f0f] px-3 py-2.5 md:px-4 md:py-3.5 text-[11px] md:text-[12px] leading-relaxed text-[#acabaa]">
                   {pq.answer}
                 </div>
               )}
@@ -689,27 +689,13 @@ export default function StudyModePage() {
             <div className="relative z-10 flex flex-col items-center gap-6">
               <p className="text-[10px] uppercase tracking-[0.3em] text-[#8fa1a1] font-medium">Focus Timer</p>
 
-              <div className="relative flex items-center justify-center">
-                <svg width={220} height={220} className="-rotate-90 opacity-90">
-                  <circle cx={110} cy={110} r={RING_R + 14} fill="none" stroke="#181818" strokeWidth={8} />
-                  <circle
-                    cx={110} cy={110} r={RING_R + 14}
-                    fill="none"
-                    stroke="#cdc0ec"
-                    strokeWidth={8}
-                    strokeLinecap="round"
-                    strokeDasharray={RING_C * (1 + 14 / RING_R * 2 * Math.PI / (2 * Math.PI)) }
-                    strokeDashoffset={2 * Math.PI * (RING_R + 14) * (1 - progress)}
-                    className="transition-all duration-1000 ease-linear"
-                  />
-                </svg>
-                <div className="font-['Manrope'] absolute text-6xl lg:text-7xl font-light tracking-tight text-[#cdc0ec]">
-                  {formatTime(timeLeft)}
-                </div>
+              <div className="font-['Manrope'] text-8xl lg:text-9xl font-light tracking-tight text-[#cdc0ec] mb-2">
+                {formatTime(timeLeft)}
               </div>
+              <div className="h-1 w-32 bg-gradient-to-r from-transparent via-[#cdc0ec]/30 to-transparent rounded-full mb-2" />
 
-              <p className="text-sm text-[#767575] text-center max-w-xs">
-                Stay focused on <span className="text-[#acabaa]">{topic.toLowerCase()}</span>
+              <p className="max-w-lg text-sm leading-relaxed text-[#acabaa] text-center">
+                Stay focused on {topic.toLowerCase()} for this session.
               </p>
             </div>
 
@@ -786,7 +772,7 @@ export default function StudyModePage() {
                     : "border-transparent text-[#767575] hover:text-[#acabaa]"
                 }`}
               >
-                {tab}
+                {tab === "Practice" ? "Practice Questions" : tab}
               </button>
             ))}
           </div>
