@@ -4,6 +4,10 @@ An AI-powered study planning and tutoring app for students looking to study a co
 
 ---
 
+# Video Demo:
+
+https://github.com/user-attachments/assets/09b0ae76-872c-42f3-acc3-8ab64577d343
+
 ## Features
 
 - **AI Study Plan Generation** — input your course, exam date, and daily study hours; get a day-by-day study schedule
